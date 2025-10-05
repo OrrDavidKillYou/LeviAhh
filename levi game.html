@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Levi Zelkind Game</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    #header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    #header img {
+      width: 50px;
+      height: 50px;
+      margin-left: 10px;
+      border-radius: 50%;
+    }
+    #gameCanvas {
+      background: white;
+      border: 2px solid black;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1>Levi Zelkind Game</h1>
+    <img src="https://media.licdn.com/dms/image/v2/C4D03AQEm2kirCmJrSw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1596303540574?e=2147483647&v=beta&t=hxX0K6_OQZJg3JuudGopV43JEVZiEX_zxBpUvoo_Gxo" alt="Profile">
+  </div>
+  <h2>Score: <span id="score">0</span> | Time: <span id="time">45</span>s</h2>
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
+  <div id="message">Press ENTER to start</div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreDisplay = document.getElementById("score");
+    const timeDisplay = document.getElementById("time");
+    const message = document.getElementById("message");
+
+    // Player image
+    const player = new Image();
+    player.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu5zSvKPUaZZGQzWcLE45xgBT3pxEYLlu2wQ&s";
+
+    let x, y;
+    const speed = 10;
+    const imgSize = 80;
+
+    // Fruits images
+    const fruits = [
+      "https://i.imgur.com/4uwJAMo.jpeg",
+      "https://i.imgur.com/ZHJMphT.jpeg",
+      "https://i.imgur.com/pbYA8AB.jpeg",
+      "https://i.imgur.com/jEFcDfE.jpeg",
+      "https://i.imgur.com/5qMpg45.jpeg",
+      "https://i.imgur.com/jNDl6cg.jpeg",
+      "https://i.imgur.com/WC5rwH4.jpeg",
+      "https://i.imgur.com/t20Ak5b.jpeg",
+      "https://i.imgur.com/0cPP22V.png",
+      "https://i.imgur.com/Y0xO0n8.png"
+    ];
+
+    let fruitImg = new Image();
+    let fruitX, fruitY;
+    const fruitSize = 60;
+
+    let score, timeLeft, gameOver, timer;
+
+    // --------------------
+    // FUNCTIONS
+    // --------------------
+    function resetGame() {
+      // Reset values
+      x = 100;
+      y = 100;
+      score = 0;
+      timeLeft = 45;
+      gameOver = false;
+
+      scoreDisplay.textContent = score;
+      timeDisplay.textContent = timeLeft;
+      message.textContent = "";
+
+      newFruit();
+      draw();
+      startTimer();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(fruitImg, fruitX, fruitY, fruitSize, fruitSize);
+      ctx.drawImage(player, x, y, imgSize, imgSize);
+    }
+
+    function newFruit() {
+      fruitImg.src = fruits[Math.floor(Math.random() * fruits.length)];
+      fruitX = Math.random() * (canvas.width - fruitSize);
+      fruitY = Math.random() * (canvas.height - fruitSize);
+    }
+
+    function checkCollision() {
+      if (
+        x < fruitX + fruitSize &&
+        x + imgSize > fruitX &&
+        y < fruitY + fruitSize &&
+        y + imgSize > fruitY
+      ) {
+        score++;
+        scoreDisplay.textContent = score;
+        newFruit();
+      }
+    }
+
+    function startTimer() {
+      clearInterval(timer); // stop old timers if replay
+      timer = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          timeDisplay.textContent = timeLeft;
+        } else {
+          clearInterval(timer);
+          gameOver = true;
+          message.textContent = `Game Over! You scored ${score} points! 🎉 Press ENTER to play again.`;
+        }
+      }, 1000);
+    }
+
+    // --------------------
+    // EVENT HANDLING
+    // --------------------
+    document.addEventListener("keydown", function(event) {
+      // START GAME on Enter
+      if (event.key === "Enter" && (gameOver || timeLeft === undefined)) {
+        resetGame();
+        return;
+      }
+
+      if (gameOver) return; // ignore movement if over
+
+      // Movement
+      if (event.key === "ArrowUp") y -= speed;
+      if (event.key === "ArrowDown") y += speed;
+      if (event.key === "ArrowLeft") x -= speed;
+      if (event.key === "ArrowRight") x += speed;
+
+      // Boundaries
+      if (x < 0) x = 0;
+      if (y < 0) y = 0;
+      if (x + imgSize > canvas.width) x = canvas.width - imgSize;
+      if (y + imgSize > canvas.height) y = canvas.height - imgSize;
+
+      checkCollision();
+      draw();
+    });
+
+    // --------------------
+    // INITIAL DRAW (waiting screen)
+    // --------------------
+    player.onload = function() {
+      message.textContent = "Press ENTER to start";
+    };
+  </script>
+</body>
+</html>
