@@ -122,6 +122,22 @@
       fruitY = Math.random() * (canvas.height - fruitSize);
     }
 
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, get } from "firebase/database";
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+function saveHighScore(score) {
+  get(ref(db, 'highScore')).then((snapshot) => {
+    const currentHigh = snapshot.val() || 0;
+    if(score > currentHigh){
+      set(ref(db, 'highScore'), score);
+    }
+  });
+}
+
+
     function checkCollision() {
       if (
         x < fruitX + fruitSize &&
@@ -193,6 +209,7 @@
 </body>
   <a href="index.html"class="niga">to main page</a>
 </html>
+
 
 
 
