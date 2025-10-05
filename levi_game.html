@@ -2,7 +2,10 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Levi Zelkind Game</title>
+  <title>levi ahhh</title>
+ <link rel="icon" type="image/png" href="https://media.licdn.com/dms/image/v2/C4D03AQEm2kirCmJrSw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1596303540574?e=2147483647&v=beta&t=hxX0K6_OQZJg3JuudGopV43JEVZiEX_zxBpUvoo_Gxo">
+
+
   <style>
 
     body {
@@ -12,15 +15,16 @@
       flex-direction: column;
       height: 100vh;
       margin: 0;
-      background-color:#0D542B;
+      background-color:#022F2E;
       font-family: Arial, sans-serif;
-      color:#2A4179;
+      color:#36F7F3;
     }
     #header {
       display: flex;
       align-items: center;
       margin-bottom: 5px;
     }
+
     #header img {
       width: 50px;
       height: 50px;
@@ -39,7 +43,7 @@
     }
     .niga{
       color:crimson;
-      font-size:30px;
+      font-size:50px;
   </style>
 </head>
 <body>
@@ -127,9 +131,15 @@
       ) {
         score++;
         scoreDisplay.textContent = score;
+            timeLeft ++;
+    timeDisplay.textContent = timeLeft;
         newFruit();
       }
     }
+    
+  
+
+
 
     function startTimer() {
       clearInterval(timer); // stop old timers if replay
@@ -183,6 +193,7 @@
 </body>
   <a href="index.html"class="niga">to main page</a>
 </html>
+
 
 
 
