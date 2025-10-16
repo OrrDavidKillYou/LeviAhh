@@ -2,12 +2,10 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>levi ahhh</title>
- <link rel="icon" type="image/png" href="https://media.licdn.com/dms/image/v2/C4D03AQEm2kirCmJrSw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1596303540574?e=2147483647&v=beta&t=hxX0K6_OQZJg3JuudGopV43JEVZiEX_zxBpUvoo_Gxo">
-
+  <title>Levi Zelkind Game</title>
+  <link rel="icon" type="image/png" href="https://media.licdn.com/dms/image/v2/C4D03AQEm2kirCmJrSw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1596303540574?e=2147483647&v=beta&t=hxX0K6_OQZJg3JuudGopV43JEVZiEX_zxBpUvoo_Gxo">
 
   <style>
-
     body {
       display: flex;
       justify-content: center;
@@ -15,10 +13,11 @@
       flex-direction: column;
       height: 100vh;
       margin: 0;
-      background-color:#022F2E;
+      background-color: #022F2E;
       font-family: Arial, sans-serif;
-      color:#36F7F3;
+      color: #36F7F3;
     }
+
     #header {
       display: flex;
       align-items: center;
@@ -31,19 +30,26 @@
       margin-left: 10px;
       border-radius: 50%;
     }
+
     #gameCanvas {
-      background:#0F172B;
+      background: #0F172B;
       border: 2px solid black;
+      margin-top: 10px;
     }
+
     #message {
       margin-top: 20px;
       font-size: 50px;
       font-weight: bold;
       color: green;
+      text-align: center;
     }
-    .niga{
-      color:crimson;
-      font-size:50px;
+
+    .niga {
+      color: crimson;
+      font-size: 50px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -51,18 +57,40 @@
     <h1>Levi Zelkind Game</h1>
     <img src="https://media.licdn.com/dms/image/v2/C4D03AQEm2kirCmJrSw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1596303540574?e=2147483647&v=beta&t=hxX0K6_OQZJg3JuudGopV43JEVZiEX_zxBpUvoo_Gxo" alt="Profile">
   </div>
+
   <h2>Score: <span id="score">0</span> | Time: <span id="time">30</span>s</h2>
+
   <canvas id="gameCanvas" width="600" height="400"></canvas>
+
   <div id="message">Press ENTER to start</div>
 
-  <script>
+  <a href="index.html" class="niga">to main page</a>
+
+  <!-- Game + Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+    // 🔑 Replace with your actual Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const scoreDisplay = document.getElementById("score");
     const timeDisplay = document.getElementById("time");
     const message = document.getElementById("message");
 
-    // Player image
     const player = new Image();
     player.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu5zSvKPUaZZGQzWcLE45xgBT3pxEYLlu2wQ&s";
 
@@ -70,7 +98,6 @@
     const speed = 10;
     const imgSize = 80;
 
-    // Fruits images
     const fruits = [
       "https://i.imgur.com/4uwJAMo.jpeg",
       "https://i.imgur.com/ZHJMphT.jpeg",
@@ -91,10 +118,9 @@
     let score, timeLeft, gameOver, timer;
 
     // --------------------
-    // FUNCTIONS
+    // GAME FUNCTIONS
     // --------------------
     function resetGame() {
-      // Reset values
       x = 100;
       y = 100;
       score = 0;
@@ -122,22 +148,6 @@
       fruitY = Math.random() * (canvas.height - fruitSize);
     }
 
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, get } from "firebase/database";
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-function saveHighScore(score) {
-  get(ref(db, 'highScore')).then((snapshot) => {
-    const currentHigh = snapshot.val() || 0;
-    if(score > currentHigh){
-      set(ref(db, 'highScore'), score);
-    }
-  });
-}
-
-
     function checkCollision() {
       if (
         x < fruitX + fruitSize &&
@@ -147,18 +157,14 @@ function saveHighScore(score) {
       ) {
         score++;
         scoreDisplay.textContent = score;
-            timeLeft ++;
-    timeDisplay.textContent = timeLeft;
+        timeLeft++;
+        timeDisplay.textContent = timeLeft;
         newFruit();
       }
     }
-    
-  
-
-
 
     function startTimer() {
-      clearInterval(timer); // stop old timers if replay
+      clearInterval(timer);
       timer = setInterval(() => {
         if (timeLeft > 0) {
           timeLeft--;
@@ -167,29 +173,37 @@ function saveHighScore(score) {
           clearInterval(timer);
           gameOver = true;
           message.textContent = `Game Over! You scored ${score} points! 🎉 Press ENTER to play again.`;
+          saveHighScore(score);
         }
       }, 1000);
+    }
+
+    function saveHighScore(score) {
+      get(ref(db, 'highScore')).then((snapshot) => {
+        const currentHigh = snapshot.val() || 0;
+        if (score > currentHigh) {
+          set(ref(db, 'highScore'), score);
+        }
+      });
     }
 
     // --------------------
     // EVENT HANDLING
     // --------------------
     document.addEventListener("keydown", function(event) {
-      // START GAME on Enter
       if (event.key === "Enter" && (gameOver || timeLeft === undefined)) {
         resetGame();
         return;
       }
 
-      if (gameOver) return; // ignore movement if over
+      if (gameOver) return;
 
-      // Movement
       if (event.key === "ArrowUp") y -= speed;
       if (event.key === "ArrowDown") y += speed;
       if (event.key === "ArrowLeft") x -= speed;
       if (event.key === "ArrowRight") x += speed;
 
-      // Boundaries
+      // boundaries
       if (x < 0) x = 0;
       if (y < 0) y = 0;
       if (x + imgSize > canvas.width) x = canvas.width - imgSize;
@@ -199,20 +213,9 @@ function saveHighScore(score) {
       draw();
     });
 
-    // --------------------
-    // INITIAL DRAW (waiting screen)
-    // --------------------
     player.onload = function() {
       message.textContent = "Press ENTER to start";
     };
   </script>
 </body>
-  <a href="index.html"class="niga">to main page</a>
 </html>
-
-
-
-
-
-
-
