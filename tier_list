@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Levi Tier List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 20px;
+      padding: 20px;
+      background-color: lightseagreen; /* Set background to lightseagreen */
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3em;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .tiers {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      margin-top: 20px;
+    }
+
+    .tier {
+      width: 18%;
+      min-height: 200px;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      color: white;
+      border-radius: 8px;
+      overflow: auto;
+    }
+
+    .tier h2 {
+      text-align: center;
+      font-size: 2em;
+      color:black;
+    }
+
+    .tier-1 {
+      background-color: red;
+    }
+
+    .tier-2 {
+      background-color: darkorange;
+    }
+
+    .tier-3 {
+      background-color: orange;
+    }
+
+    .tier-4 {
+      background-color: yellow;
+      color: black;
+    }
+
+    .tier-5 {
+      background-color: green;
+    }
+
+    .image-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: start;
+      gap: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      width: 100%;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .image-container img {
+      width: 80px;
+      height: 80px;
+      cursor: pointer;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      transition: 0.3s ease-in-out;
+    }
+
+    .image-container img:hover {
+      transform: scale(1.1);
+    }
+
+    .dragging {
+      opacity: 0.5;
+    }
+
+    .tier img {
+      width: 100%;
+      max-width: 80px;
+      height: auto;
+      margin: 5px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Headline -->
+  <h1>Levi Tier List</h1>
+
+  <!-- List of images -->
+  <div class="image-container" id="imageList">
+    <img src="https://i.imgur.com/jNDl6cg.jpeg" alt="Image 1" id="image1" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/WC5rwH4.jpeg" alt="Image 2" id="image2" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/t20Ak5b.jpeg" alt="Image 3" id="image3" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/0cPP22V.png" alt="Image 4" id="image4" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/Y0xO0n8.png" alt="Image 5" id="image5" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/2lGPLGo.png" alt="Image 6" id="image6" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/ZHJMphT.jpeg" alt="Image 7" id="image7" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/pbYA8AB.jpeg" alt="Image 8" id="image8" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/jEFcDfE.jpeg" alt="Image 9" id="image9" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/4uwJAMo.jpeg" alt="Image 10" id="image10" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/5qMpg45.jpeg" alt="Image 11" id="image11" class="draggable" draggable="true">
+  </div>
+
+  <!-- Tiers -->
+  <div class="tiers">
+    <div class="tier tier-1" id="tier1" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <h2>S</h2>
+    </div>
+    <div class="tier tier-2" id="tier2" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <h2>A</h2>
+    </div>
+    <div class="tier tier-3" id="tier3" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <h2>B</h2>
+    </div>
+    <div class="tier tier-4" id="tier4" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <h2>D</h2>
+    </div>
+    <div class="tier tier-5" id="tier5" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <h2>F</h2>
+    </div>
+  </div>
+
+  <script>
+      // Enable dragging
+      const draggables = document.querySelectorAll('.draggable');
+      let draggedImage = null;
+
+      draggables.forEach(image => {
+          image.addEventListener('dragstart', (e) => {
+              draggedImage = e.target;
+              e.target.classList.add('dragging');
+          });
+
+          image.addEventListener('dragend', (e) => {
+              e.target.classList.remove('dragging');
+              draggedImage = null;
+          });
+      });
+
+      // Enable drop functionality
+      function allowDrop(event) {
+          event.preventDefault();
+      }
+
+      function drop(event) {
+          event.preventDefault();
+          const tier = event.target;
+
+          // Avoid dropping on the tier's title
+          if (tier.className.includes('tier') && tier !== event.target.closest('.tier')) return;
+
+          // If there is a dragged image, append it to the current tier
+          if (draggedImage) {
+              tier.appendChild(draggedImage);
+          }
+      }
+  </script>
+
+</body>
+</html>
