@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Levi Tier List</title>
+  <title>Secret Levi Tier List</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -29,6 +29,7 @@
       justify-content: space-between;
       width: 80%;
       margin-top: 20px;
+      flex-wrap: wrap;
     }
 
     .tier {
@@ -42,6 +43,7 @@
       color: white;
       border-radius: 8px;
       overflow: auto;
+      margin-bottom: 20px;
     }
 
     .tier h2 {
@@ -107,86 +109,110 @@
       height: auto;
       margin: 5px;
     }
-    .niga{
-      color:darkblue;
-      font-size:30px;
 
+    .niga{
+      color:teal;
+      font-size:30px;
+      text-align: center;
+      text-decoration: none;
+      padding-top: 20px;
+    }
+    
+    .niga:hover {
+      color: aquamarine;
+    }
+
+    /* Mobile responsiveness */
+    @media screen and (max-width: 768px) {
+      .tiers {
+        flex-direction: column; /* Stack tiers vertically */
+        width: 100%;
+      }
+
+      .tier {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      .image-container img {
+        width: 60px; /* Reduce the size of images on mobile */
+        height: 60px;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+
+      .niga {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Headline -->
-  <h1>Secret Levi Tier List</h1>
+  <h1>Levi Tier List</h1>
 
-  <!-- List of images -->
   <div class="image-container" id="imageList">
-    <img src="https://i.imgur.com/jNDl6cg.jpeg" alt="Image 1" id="image1" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/WC5rwH4.jpeg" alt="Image 2" id="image2" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/t20Ak5b.jpeg" alt="Image 3" id="image3" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/0cPP22V.png" alt="Image 4" id="image4" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/Y0xO0n8.png" alt="Image 5" id="image5" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/2lGPLGo.png" alt="Image 6" id="image6" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/ZHJMphT.jpeg" alt="Image 7" id="image7" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/pbYA8AB.jpeg" alt="Image 8" id="image8" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/jEFcDfE.jpeg" alt="Image 9" id="image9" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/4uwJAMo.jpeg" alt="Image 10" id="image10" class="draggable" draggable="true">
-    <img src="https://i.imgur.com/5qMpg45.jpeg" alt="Image 11" id="image11" class="draggable" draggable="true">
+    <img src="https://i.imgur.com/jNDl6cg.jpeg" alt="Image 1" id="image1" class="draggable">
+    <img src="https://i.imgur.com/WC5rwH4.jpeg" alt="Image 2" id="image2" class="draggable">
+    <img src="https://i.imgur.com/t20Ak5b.jpeg" alt="Image 3" id="image3" class="draggable">
+    <img src="https://i.imgur.com/0cPP22V.png" alt="Image 4" id="image4" class="draggable">
+    <img src="https://i.imgur.com/Y0xO0n8.png" alt="Image 5" id="image5" class="draggable">
+    <img src="https://i.imgur.com/2lGPLGo.png" alt="Image 6" id="image6" class="draggable">
+    <img src="https://i.imgur.com/ZHJMphT.jpeg" alt="Image 7" id="image7" class="draggable">
+    <img src="https://i.imgur.com/pbYA8AB.jpeg" alt="Image 8" id="image8" class="draggable">
+    <img src="https://i.imgur.com/jEFcDfE.jpeg" alt="Image 9" id="image9" class="draggable">
+    <img src="https://i.imgur.com/4uwJAMo.jpeg" alt="Image 10" id="image10" class="draggable">
+    <img src="https://i.imgur.com/5qMpg45.jpeg" alt="Image 11" id="image11" class="draggable">
   </div>
 
-  <!-- Tiers -->
   <div class="tiers">
-    <div class="tier tier-1" id="tier1" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="tier tier-1" id="tier1">
       <h2>S</h2>
     </div>
-    <div class="tier tier-2" id="tier2" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="tier tier-2" id="tier2">
       <h2>A</h2>
     </div>
-    <div class="tier tier-3" id="tier3" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="tier tier-3" id="tier3">
       <h2>B</h2>
     </div>
-    <div class="tier tier-4" id="tier4" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="tier tier-4" id="tier4">
       <h2>D</h2>
     </div>
-    <div class="tier tier-5" id="tier5" ondrop="drop(event)" ondragover="allowDrop(event)">
+    <div class="tier tier-5" id="tier5">
       <h2>F</h2>
     </div>
   </div>
 
   <script>
-      // Enable dragging
-      const draggables = document.querySelectorAll('.draggable');
-      let draggedImage = null;
+    let selectedImage = null;
 
-      draggables.forEach(image => {
-          image.addEventListener('dragstart', (e) => {
-              draggedImage = e.target;
-              e.target.classList.add('dragging');
-          });
-
-          image.addEventListener('dragend', (e) => {
-              e.target.classList.remove('dragging');
-              draggedImage = null;
-          });
+    // Click to select an image
+    const images = document.querySelectorAll('.draggable');
+    images.forEach(image => {
+      image.addEventListener('click', () => {
+        if (selectedImage) {
+          selectedImage.style.border = '2px solid #ccc';  // Remove previous selection border
+        }
+        selectedImage = image;
+        selectedImage.style.border = '2px solid yellow';  // Highlight the selected image
       });
+    });
 
-      // Enable drop functionality
-      function allowDrop(event) {
-          event.preventDefault();
-      }
-
-      function drop(event) {
-          event.preventDefault();
-          const tier = event.target;
-
-          // Avoid dropping on the tier's title
-          if (tier.className.includes('tier') && tier !== event.target.closest('.tier')) return;
-
-          // If there is a dragged image, append it to the current tier
-          if (draggedImage) {
-              tier.appendChild(draggedImage);
-          }
-      }
+    // Click to move the selected image into a tier
+    const tiers = document.querySelectorAll('.tier');
+    tiers.forEach(tier => {
+      tier.addEventListener('click', () => {
+        if (selectedImage) {
+          tier.appendChild(selectedImage);
+          selectedImage.style.border = '2px solid #ccc';  // Remove the highlight after moving
+          selectedImage = null;  // Deselect the image
+        }
+      });
+    });
   </script>
-<a href="index.html" class=niga>to main page</a>
+
+  <a href="index.html" class="niga">Back to Index</a>
 </body>
 </html>
