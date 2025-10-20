@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Levi Zelkind Game</title>
-  <link rel="icon" type="image/png" href="https://media.licdn.com/dms/image/v2/C4D03AQEm2kirCmJrSw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1596303540574?e=2147483647&v=beta&t=hxX0K6_OQZJg3JuudGopV43JEVZiEX_zxBpUvoo_Gxo">
-
   <style>
     body {
       display: flex;
@@ -13,7 +12,7 @@
       flex-direction: column;
       height: 100vh;
       margin: 0;
-      background-color: #022F2E;
+      background: #022F2E;
       font-family: Arial, sans-serif;
       color: #36F7F3;
     }
@@ -21,39 +20,73 @@
     #header {
       display: flex;
       align-items: center;
-      margin-bottom: 5px;
+      margin-bottom: 20px;
     }
 
     #header img {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       margin-left: 10px;
       border-radius: 50%;
+      border: 2px solid #36F7F3;
     }
 
     #gameCanvas {
       background: #0F172B;
-      border: 2px solid black;
-      margin-top: 10px;
+      border: 3px solid #36F7F3;
+      margin-top: 20px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
     }
 
     #message {
       margin-top: 20px;
-      font-size: 50px;
+      font-size: 28px;
       font-weight: bold;
-      color: green;
+      color: #36F7F3;
       text-align: center;
     }
 
-    .niga {
-      color: crimson;
-      font-size: 50px;
-      margin-top: 20px;
+    #score-board {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 20px;
+      font-size: 22px;
+      font-weight: bold;
+      color: yellow;
     }
 
     #highscore {
-      margin-top: 10px;
-      font-size: 30px;
+      color: yellow;
+    }
+
+    #score {
+      color: lightgreen;
+    }
+
+    .game-info {
+      font-size: 18px;
+      font-weight: bold;
+      color: lightgray;
+    }
+
+    .to-main {
+      color: crimson;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    .to-main a {
+      color: crimson;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .to-main a:hover {
       color: yellow;
     }
   </style>
@@ -64,39 +97,24 @@
     <img src="https://media.licdn.com/dms/image/v2/C4D03AQEm2kirCmJrSw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1596303540574?e=2147483647&v=beta&t=hxX0K6_OQZJg3JuudGopV43JEVZiEX_zxBpUvoo_Gxo" alt="Profile">
   </div>
 
-  <h2>Score: <span id="score">0</span> | Time: <span id="time">30</span>s</h2>
-  <div id="highscore">High Score: 0</div>
-
+  <h2>Score: <span id="score">0</span> | Time: <span id="time">45</span>s</h2>
+  
   <canvas id="gameCanvas" width="600" height="400"></canvas>
-  <div id="message">Press ENTER to start</div>
-  <a href="index.html" class="niga">to main page</a>
 
-  <!-- Firebase CDN -->
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js"></script>
+  <div id="message">Press ENTER to start</div>
+
+  <div class="game-info">Use arrow keys to move the player. Catch the fruits to score!</div>
+
+  <div class="to-main">
+    <a href="index.html">To main page</a>
+  </div>
 
   <script>
-    // 🔑 Replace with your Firebase config
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      databaseURL: "YOUR_DATABASE_URL",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_BUCKET",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const scoreDisplay = document.getElementById("score");
     const timeDisplay = document.getElementById("time");
     const message = document.getElementById("message");
-    const highscoreDisplay = document.getElementById("highscore");
 
     const player = new Image();
     player.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu5zSvKPUaZZGQzWcLE45xgBT3pxEYLlu2wQ&s";
@@ -123,33 +141,7 @@
     const fruitSize = 60;
 
     let score, timeLeft, gameOver, timer;
-    let highScore = 0;
 
-    // --------------------
-    // Fetch High Score from Firebase
-    // --------------------
-    function updateHighScoreDisplay() {
-      highscoreDisplay.textContent = "High Score: " + highScore;
-    }
-
-    function fetchHighScore() {
-      db.ref('highScore').once('value').then(snapshot => {
-        highScore = snapshot.val() || 0;
-        updateHighScoreDisplay();
-      });
-    }
-
-    function saveHighScore(score) {
-      if(score > highScore){
-        highScore = score;
-        db.ref('highScore').set(score);
-        updateHighScoreDisplay();
-      }
-    }
-
-    // --------------------
-    // Game Functions
-    // --------------------
     function resetGame() {
       x = 100;
       y = 100;
@@ -187,8 +179,6 @@
       ) {
         score++;
         scoreDisplay.textContent = score;
-        timeLeft++;
-        timeDisplay.textContent = timeLeft;
         newFruit();
       }
     }
@@ -196,38 +186,34 @@
     function startTimer() {
       clearInterval(timer);
       timer = setInterval(() => {
-        if(timeLeft > 0){
+        if (timeLeft > 0) {
           timeLeft--;
           timeDisplay.textContent = timeLeft;
         } else {
           clearInterval(timer);
           gameOver = true;
           message.textContent = `Game Over! You scored ${score} points! 🎉 Press ENTER to play again.`;
-          saveHighScore(score);
         }
       }, 1000);
     }
 
-    // --------------------
-    // Event Handling
-    // --------------------
-    document.addEventListener("keydown", function(event){
-      if(event.key === "Enter" && (gameOver || timeLeft === undefined)){
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Enter" && (gameOver || timeLeft === undefined)) {
         resetGame();
         return;
       }
 
-      if(gameOver) return;
+      if (gameOver) return;
 
-      if(event.key === "ArrowUp") y -= speed;
-      if(event.key === "ArrowDown") y += speed;
-      if(event.key === "ArrowLeft") x -= speed;
-      if(event.key === "ArrowRight") x += speed;
+      if (event.key === "ArrowUp") y -= speed;
+      if (event.key === "ArrowDown") y += speed;
+      if (event.key === "ArrowLeft") x -= speed;
+      if (event.key === "ArrowRight") x += speed;
 
-      if(x < 0) x = 0;
-      if(y < 0) y = 0;
-      if(x + imgSize > canvas.width) x = canvas.width - imgSize;
-      if(y + imgSize > canvas.height) y = canvas.height - imgSize;
+      if (x < 0) x = 0;
+      if (y < 0) y = 0;
+      if (x + imgSize > canvas.width) x = canvas.width - imgSize;
+      if (y + imgSize > canvas.height) y = canvas.height - imgSize;
 
       checkCollision();
       draw();
@@ -236,9 +222,6 @@
     player.onload = function() {
       message.textContent = "Press ENTER to start";
     };
-
-    // Fetch high score when page loads
-    fetchHighScore();
   </script>
 </body>
 </html>
