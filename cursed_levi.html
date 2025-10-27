@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,17 +59,79 @@
     .niga {
       color: azure;
     }
+
+    /* Style for buttons */
+    .music-btn, .stop-btn {
+      font-size: 40px;
+      padding: 15px 40px;
+      background-color: violet;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 50px;
+      transition: 0.3s;
+    }
+
+    .music-btn:hover, .stop-btn:hover {
+      background-color: crimson;
+      color: white;
+    }
+
+    .button-container {
+      margin-top: 600px; /* push buttons down */
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+    }
   </style>
 </head>
 
 <body>
   <h1>cursed levi ahhh</h1>
 
-  <!-- ✅ Background music (correct link) -->
-  <audio autoplay loop>
-    <source src="https://raw.githubusercontent.com/OrrDavidKillYou/LeviAhh/refs/heads/main/background-music.mp3" type="audio/mpeg">
+  <!-- Music player -->
+  <audio id="bg-music" loop>
+    <source src="https://raw.githubusercontent.com/OrrDavidKillYou/levivi/main/background-music.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
+
+  <!-- Buttons -->
+  <div class="button-container">
+    <button class="music-btn" id="play-btn" onclick="playMusic()">🎵 Play Music 🎵</button>
+    <button class="stop-btn" onclick="stopMusic()">⏹ Stop Music ⏹</button>
+  </div>
+
+  <script>
+    let musicPlayed = false;
+
+    function playMusic() {
+      if (!musicPlayed) {
+        const audio = document.getElementById('bg-music');
+        audio.volume = 1; // full volume
+        audio.play().then(() => {
+          console.log("Audio started playing");
+          musicPlayed = true;
+          document.getElementById('play-btn').disabled = true; // disable button
+          document.getElementById('play-btn').style.opacity = 0.5;
+        }).catch(err => {
+          console.error("Audio failed to play:", err);
+        });
+      }
+    }
+
+    function stopMusic() {
+      const audio = document.getElementById('bg-music');
+      audio.pause();
+      audio.currentTime = 0; // reset to start
+      console.log("Music stopped");
+
+      // Re-enable play button
+      musicPlayed = false;
+      const playBtn = document.getElementById('play-btn');
+      playBtn.disabled = false;
+      playBtn.style.opacity = 1;
+    }
+  </script>
 
   <div class="LEVII">
     <div class="leviah">
@@ -76,7 +139,6 @@
         <img src="https://i.imgur.com/4uwJAMo.jpeg" class="levi1" />
         <figcaption>levi football</figcaption>
       </figure>
-
       <figure>
         <img src="https://i.imgur.com/ZHJMphT.jpeg" class="levi1"/>
         <figcaption>levitler strong</figcaption>
@@ -88,7 +150,6 @@
         <img src="https://i.imgur.com/pbYA8AB.jpeg" class="levi2"/>
         <figcaption>levipolion</figcaption>
       </figure>
-
       <figure>
         <img src="https://i.imgur.com/jEFcDfE.jpeg" class="levi2"/>
         <figcaption>levi tyson</figcaption>
