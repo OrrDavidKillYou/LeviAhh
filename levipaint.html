@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Paint with Brush Types and Save Button</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #colorPicker {
+      width: 100px;
+      height: 40px;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .brushControls {
+      margin-top: 10px;
+    }
+
+    #brushSize {
+      width: 50px;
+    }
+
+    #softness {
+      width: 50px;
+      margin-top: 10px;
+    }
+
+    #uploadBtn {
+      margin-top: 10px;
+    }
+
+    #saveBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    #saveBtn:hover {
+      background-color: #45a049;
+    }
+
+    canvas {
+      border: 2px solid #000;
+      cursor: crosshair;
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Controls Section -->
+  <div class="controls">
+    <input type="color" id="colorPicker" value="#000000" onchange="changeColor(this.value)">
+    <p>Pick a color to start drawing!</p>
+    <input type="file" id="uploadBtn" accept="image/*" onchange="uploadImage(event)">
+    <p>Upload an image to use as the background</p>
+    
+    <div class="brushControls">
+      <button onclick="setBrush('pencil')">Pencil</button>
+      <button onclick="setBrush('soft')">Soft Brush</button>
+      <button onclick="setBrush('colorPick')">Color Picker</button>
+    </div>
+
+    <p>Brush Size: <input type="range" id="brushSize" min="1" max="50" value="5" onchange="changeBrushSize(this.value)"> </p>
+    <p>Brush Softness: <input type="range" id="softness" min="0" max="1" step="0.01" value="0.5" onchange="changeSoftness(this.value)"> </p>
+    <button id="saveBtn" onclick="saveDrawing()">Save Drawing</button>
+  </div>
+
+  <!-- Paint Canvas -->
+  <canvas id="paintCanvas" width="800" height="600"></canvas>
+
+  <script>
+      const canvas = document.getElementById('paintCanvas');
+      const ctx = canvas.getContext('2d');
+      const uploadBtn = document.getElementById('uploadBtn');
+      let painting = false;
+      let currentColor = '#000000'; // Default color is black
+      let currentBrush = 'pencil'; // Default brush is pencil
+      let brushSize = 5; // Default brush size
+      let softness = 0.5; // Default softness (opacity for soft brush)
+      let backgroundImage = null; // Variable to store the uploaded image
+
+      // Set the brush type
+      function setBrush(brushType) {
+          currentBrush = brushType;
+      }
+
+      // Change the selected color
+      function changeColor(color) {
+          currentColor = color;
+      }
+
+      // Change the brush size
+      function changeBrushSize(size) {
+          brushSize = size;
+      }
+
+      // Change the brush softness
+      function changeSoftness(value) {
+          softness = value;
+      }
+
+      // Start painting
+      function startPosition(e) {
+          painting = true;
+          draw(e);
+      }
+
+      // End painting
+      function endPosition() {
+          painting = false;
+          ctx.beginPath();
+      }
+
+      // Draw function based on the selected brush type
+      function draw(e) {
+          if (!painting) return;
+
+          ctx.lineWidth = brushSize; // Line width
+          ctx.lineCap = 'round'; // Rounded edges for the brush strokes
+          ctx.strokeStyle = currentColor; // Set the stroke color
+
+          if (currentBrush === 'pencil') {
+              // Pencil brush
+              ctx.globalAlpha = 1; // Set full opacity for pencil
+              ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+          } else if (currentBrush === 'soft') {
+              // Soft brush (create a blurred effect)
+              ctx.globalAlpha = softness; // Softness for soft brush effect
+              ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+              ctx.globalAlpha = 1; // Reset opacity after soft brush
+          }
+      }
+
+      // Function to upload and set the background image
+      function uploadImage(event) {
+          const file = event.target.files[0];
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+              const img = new Image();
+              img.onload = function () {
+                  // Set the uploaded image as the background
+                  backgroundImage = img;
+                  redrawCanvas();
+              };
+              img.src = e.target.result;
+          };
+
+          if (file) {
+              reader.readAsDataURL(file);
+          }
+      }
+
+      // Redraw canvas (including background and painting)
+      function redrawCanvas() {
+          // Clear the canvas
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // If there's a background image, draw it
+          if (backgroundImage) {
+              ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+          }
+      }
+
+      // Pick color from the canvas
+      function pickColor(e) {
+          const x = e.clientX - canvas.offsetLeft;
+          const y = e.clientY - canvas.offsetTop;
+          const imgData = ctx.getImageData(x, y, 1, 1); // Get pixel data at the point clicked
+          const color = imgData.data; // Get the RGBA data from the pixel
+          currentColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`; // Set current color to the picked color
+          document.getElementById('colorPicker').value = currentColor; // Update the color picker UI
+      }
+
+      // Save current canvas as an image (PNG) and trigger download
+      function saveDrawing() {
+          const imageUrl = canvas.toDataURL('image/png'); // Convert canvas to PNG data URL
+
+          // Create an invisible link element
+          const link = document.createElement('a');
+          link.href = imageUrl; // Set the href to the image data URL
+          link.download = 'drawing.png'; // Set the default filename
+
+          // Programmatically click the link to trigger the download
+          link.click();
+      }
+
+      // Event listeners for painting
+      canvas.addEventListener('mousedown', (e) => {
+          if (currentBrush === 'colorPick') {
+              pickColor(e); // Use color pick tool if selected
+          } else {
+              startPosition(e); // Normal drawing
+          }
+      });
+
+      canvas.addEventListener('mouseup', endPosition);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseout', endPosition);
+
+  </script>
+
+</body>
+</html>
