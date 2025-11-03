@@ -26,7 +26,7 @@
 
     .levi {
       position: absolute;
-      top: 50%;
+      top: 60%;
       left: 50%;
       transform: translate(-50%, -50%);
       height: 350px;
@@ -102,35 +102,35 @@
   </div>
 
   <script>
-    let musicPlayed = false;
+      let musicPlayed = false;
 
-    function playMusic() {
-      if (!musicPlayed) {
-        const audio = document.getElementById('bg-music');
-        audio.volume = 1; // full volume
-        audio.play().then(() => {
-          console.log("Audio started playing");
-          musicPlayed = true;
-          document.getElementById('play-btn').disabled = true; // disable button
-          document.getElementById('play-btn').style.opacity = 0.5;
-        }).catch(err => {
-          console.error("Audio failed to play:", err);
-        });
+      function playMusic() {
+          if (!musicPlayed) {
+              const audio = document.getElementById('bg-music');
+              audio.volume = 1; // full volume
+              audio.play().then(() => {
+                  console.log("Audio started playing");
+                  musicPlayed = true;
+                  document.getElementById('play-btn').disabled = true; // disable button
+                  document.getElementById('play-btn').style.opacity = 0.5;
+              }).catch(err => {
+                  console.error("Audio failed to play:", err);
+              });
+          }
       }
-    }
 
-    function stopMusic() {
-      const audio = document.getElementById('bg-music');
-      audio.pause();
-      audio.currentTime = 0; // reset to start
-      console.log("Music stopped");
+      function stopMusic() {
+          const audio = document.getElementById('bg-music');
+          audio.pause();
+          audio.currentTime = 0; // reset to start
+          console.log("Music stopped");
 
-      // Re-enable play button
-      musicPlayed = false;
-      const playBtn = document.getElementById('play-btn');
-      playBtn.disabled = false;
-      playBtn.style.opacity = 1;
-    }
+          // Re-enable play button
+          musicPlayed = false;
+          const playBtn = document.getElementById('play-btn');
+          playBtn.disabled = false;
+          playBtn.style.opacity = 1;
+      }
   </script>
 
   <div class="LEVII">
@@ -170,3 +170,4 @@
   </div>
 </body>
 </html>
+
