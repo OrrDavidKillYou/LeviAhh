@@ -83,7 +83,7 @@
       <button onclick="setBrush('pencil')">Pencil</button>
       <button onclick="setBrush('soft')">Soft Brush</button>
       <button onclick="setBrush('colorPick')">Color Picker</button>
-      <button onclick="setBrush('eraser')">🧽 Eraser</button> <!-- 🧩 NEW -->
+      <button onclick="setBrush('eraser')">🧽 Eraser</button>
     </div>
 
     <p>Brush Size: <input type="range" id="brushSize" min="1" max="50" value="5" onchange="changeBrushSize(this.value)"> </p>
@@ -99,50 +99,53 @@
       const ctx = canvas.getContext('2d');
       const uploadBtn = document.getElementById('uploadBtn');
       let painting = false;
-      let currentColor = '#000000'; // Default color is black
-      let currentBrush = 'pencil'; // Default brush is pencil
-      let brushSize = 5; // Default brush size
-      let softness = 0.5; // Default softness (opacity for soft brush)
-      let backgroundImage = null; // Variable to store the uploaded image
+      let currentColor = '#000000';
+      let currentBrush = 'pencil';
+      let brushSize = 5;
+      let softness = 0.5;
+      let backgroundImage = null;
 
-      // Set the brush type
       function setBrush(brushType) {
           currentBrush = brushType;
       }
 
-      // Change the selected color
       function changeColor(color) {
           currentColor = color;
       }
 
-      // Change the brush size
       function changeBrushSize(size) {
           brushSize = size;
       }
 
-      // Change the brush softness
       function changeSoftness(value) {
           softness = value;
       }
 
-      // Start painting
       function startPosition(e) {
           painting = true;
           draw(e);
       }
 
-      // End painting
       function endPosition() {
           painting = false;
           ctx.beginPath();
       }
 
-      // Draw function based on the selected brush type
+      // --- FIXED COORDINATES USING getBoundingClientRect() ---
+      function getMousePos(e) {
+          const rect = canvas.getBoundingClientRect();
+          return {
+              x: e.clientX - rect.left,
+              y: e.clientY - rect.top
+          };
+      }
+
       function draw(e) {
           if (!painting) return;
 
-          const x = e.clientX - canvas.offsetLeft;
-          const y = e.clientY - canvas.offsetTop;
+          const pos = getMousePos(e);
+          const x = pos.x;
+          const y = pos.y;
 
           ctx.lineWidth = brushSize;
           ctx.lineCap = 'round';
@@ -154,6 +157,7 @@
               ctx.stroke();
               ctx.beginPath();
               ctx.moveTo(x, y);
+
           } else if (currentBrush === 'soft') {
               ctx.globalAlpha = softness;
               ctx.strokeStyle = currentColor;
@@ -162,19 +166,18 @@
               ctx.beginPath();
               ctx.moveTo(x, y);
               ctx.globalAlpha = 1;
-          } else if (currentBrush === 'eraser') { // 🧩 NEW
+
+          } else if (currentBrush === 'eraser') {
               ctx.globalAlpha = 1;
-              ctx.strokeStyle = backgroundImage ? 'rgba(255,255,255,0)' : '#ffffff';
-              ctx.globalCompositeOperation = 'destination-out'; // erase drawn pixels
+              ctx.globalCompositeOperation = 'destination-out';
               ctx.lineTo(x, y);
               ctx.stroke();
               ctx.beginPath();
               ctx.moveTo(x, y);
-              ctx.globalCompositeOperation = 'source-over'; // reset to normal drawing
+              ctx.globalCompositeOperation = 'source-over';
           }
       }
 
-      // Function to upload and set the background image
       function uploadImage(event) {
           const file = event.target.files[0];
           const reader = new FileReader();
@@ -188,12 +191,9 @@
               img.src = e.target.result;
           };
 
-          if (file) {
-              reader.readAsDataURL(file);
-          }
+          if (file) reader.readAsDataURL(file);
       }
 
-      // Redraw canvas (including background and painting)
       function redrawCanvas() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           if (backgroundImage) {
@@ -201,30 +201,26 @@
           }
       }
 
-      // Pick color from the canvas
+      // --- FIXED COLOR PICKER COORDINATES ---
       function pickColor(e) {
-          const x = e.clientX - canvas.offsetLeft;
-          const y = e.clientY - canvas.offsetTop;
+          const pos = getMousePos(e);
+          const x = pos.x;
+          const y = pos.y;
+
           const imgData = ctx.getImageData(x, y, 1, 1);
           const color = imgData.data;
+
           currentColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
           document.getElementById('colorPicker').value = rgbToHex(color[0], color[1], color[2]);
       }
 
-      // Helper: Convert RGB to HEX for color picker UI
       function rgbToHex(r, g, b) {
-          return (
-              "#" +
-              [r, g, b]
-                  .map((x) => {
-                      const hex = x.toString(16);
-                      return hex.length === 1 ? "0" + hex : hex;
-                  })
-                  .join("")
-          );
+          return "#" + [r, g, b].map((x) => {
+              const hex = x.toString(16);
+              return hex.length === 1 ? "0" + hex : hex;
+          }).join("");
       }
 
-      // Save current canvas as an image (PNG)
       function saveDrawing() {
           const imageUrl = canvas.toDataURL('image/png');
           const link = document.createElement('a');
@@ -233,7 +229,6 @@
           link.click();
       }
 
-      // Event listeners
       canvas.addEventListener('mousedown', (e) => {
           if (currentBrush === 'colorPick') {
               pickColor(e);
