@@ -1,0 +1,88 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Sources Information</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: darkslategrey;
+            color: aqua;
+            font-family: Arial, sans-serif;
+            padding: 50px;
+        }
+
+        h1 {
+            font-size: 70px;
+            margin-bottom: 40px;
+        }
+
+        p {
+            font-size: 30px;
+        }
+
+        a {
+            font-size: 30px;
+            color: aqua;
+            text-decoration: none;
+            background-color: darkslategrey;
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 20px 10px 40px 10px;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        a:hover {
+            transform: scale(1.1);
+            background-color: darkblue;
+        }
+
+        .contact {
+            font-size: 40px;
+            background-color: darkslategrey;
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 40px;
+        }
+
+        .pizza-img img {
+            width: 400px;
+            height: 250px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .pizza-img img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px aqua;
+        }
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <h1>Sources Information</h1>
+
+        <p>Here you can find the source of information about pizza history:</p>
+        <a href="https://www.lacucinaitaliana.com/italian-food/italian-dishes/history-pizza-incredible-tale" target="_blank">
+            View Source
+        </a>
+
+        <div class="pizza-img">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTs3HaWprjBE3nMGKyH-Myd8D3jK0U0EUqTLw&s" alt="Pizza Image" />
+        </div>
+
+        <div class="contact">
+            Contact with me: 0527025873
+        </div>
+
+        <a href="david_page1.html">Back to Main Page</a>
+    </form>
+</body>
+</html>
