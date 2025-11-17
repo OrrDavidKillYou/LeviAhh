@@ -1,253 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Paint with Brush Types and Save Button</title>
-  <h1>levi painter</h1>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Levi Painter</title>
   <style>
+    :root { --bg: aquamarine; }
+    html,body { height:100%; margin:0; }
     body {
       font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      flex-direction: column;
-      background-color: aquamarine;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:12px;
+      background: var(--bg);
+      padding:20px;
+      box-sizing:border-box;
     }
 
+    header { text-align:center; }
     .controls {
-      margin-bottom: 20px;
-      text-align: center;
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255,255,255,0.9);
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
     }
 
-    #colorPicker {
-      width: 100px;
-      height: 40px;
-      border: none;
-      cursor: pointer;
-      margin-bottom: 10px;
+    .left, .right { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    #colorPicker { width:44px; height:34px; border:none; cursor:pointer; }
+    #saveBtn { padding:8px 14px; border-radius:6px; background:#4CAF50; color:white; border:none; cursor:pointer; }
+    #saveBtn:hover { background:#45a049; }
+    .canvas-wrap { position:relative; width:100%; max-width:900px; border:2px solid #000; background:#fff; }
+    canvas { display:block; width:100%; height:auto; user-select:none; -webkit-user-select:none; touch-action:none; }
+    .label { font-size:13px; color:#222; }
+    .brushControls button { padding:6px 10px; border-radius:6px; border:1px solid #ccc; background:white; cursor:pointer; }
+    .brushControls button.active { background:#eee; border-color:#888; }
+    .digga{
+        color:crimson;
+        font-size:20px;
+        text-decoration:none;
     }
-
-    .brushControls {
-      margin-top: 10px;
-    }
-
-    #brushSize {
-      width: 50px;
-    }
-
-    #softness {
-      width: 50px;
-      margin-top: 10px;
-    }
-
-    #uploadBtn {
-      margin-top: 10px;
-    }
-
-    #saveBtn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-
-    #saveBtn:hover {
-      background-color: #45a049;
-    }
-
-    canvas {
-      border: 2px solid #000;
-      cursor: crosshair;
-      background-color: #fff;
-    }
-    .nien {
-          color:crimson;
-          text-decoration:none;
-           font-size:25px;
-          }
-    
   </style>
-
+    
 </head>
 <body>
-        <a href="index.html"class="nien">to home</a>
-  <!-- Controls Section -->
-  <div class="controls">
-    <input type="color" id="colorPicker" value="#000000" onchange="changeColor(this.value)">
-    <p>Pick a color to start drawing!</p>
-    <input type="file" id="uploadBtn" accept="image/*" onchange="uploadImage(event)">
-    <p>Upload an image to use as the background</p>
-    
-    <div class="brushControls">
-      <button onclick="setBrush('pencil')">Pencil</button>
-      <button onclick="setBrush('soft')">Soft Brush</button>
-      <button onclick="setBrush('colorPick')">Color Picker</button>
-      <button onclick="setBrush('eraser')">🧽 Eraser</button>
+    <a href="index.html"class="digga"title="to home">to home page</a>
+  <header>
+    <h1>levi painter</h1>
+  </header>
+
+  <div class="controls" role="toolbar" aria-label="painting controls">
+    <div class="left">
+      <input id="colorPicker" type="color" value="#000000" aria-label="color picker">
+      <div class="brushControls">
+        <button id="pencilBtn">Pencil</button>
+        <button id="softBtn">Soft</button>
+        <button id="pickBtn">Color Pick</button>
+        <button id="eraserBtn">Eraser</button>
+      </div>
+      <label class="label">Brush Size
+        <input id="brushSize" type="range" min="1" max="80" value="5">
+      </label>
+      <label class="label">Softness
+        <input id="softness" type="range" min="0" max="1" step="0.01" value="0.5">
+      </label>
     </div>
 
-    <p>Brush Size: <input type="range" id="brushSize" min="1" max="50" value="5" onchange="changeBrushSize(this.value)"> </p>
-    <p>Brush Softness: <input type="range" id="softness" min="0" max="1" step="0.01" value="0.5" onchange="changeSoftness(this.value)"> </p>
-    <button id="saveBtn" onclick="saveDrawing()">Save Drawing</button>
+    <div class="right">
+      <input id="uploadBtn" type="file" accept="image/*">
+      <button id="saveBtn">Save Drawing</button>
+    </div>
   </div>
 
-  <!-- Paint Canvas -->
-  <canvas id="paintCanvas" width="800" height="600"></canvas>
+  <div class="canvas-wrap" id="canvasWrap" style="max-width:900px;">
+    <!-- background canvas (for uploaded image) -->
+    <canvas id="bgCanvas" width="800" height="600" style="position:absolute; left:0; top:0; z-index:0;"></canvas>
+    <!-- drawing canvas (for strokes) -->
+    <canvas id="drawCanvas" width="800" height="600" style="position:relative; z-index:1;"></canvas>
+  </div>
 
-  <script>
-      const canvas = document.getElementById('paintCanvas');
-      const ctx = canvas.getContext('2d');
-      const uploadBtn = document.getElementById('uploadBtn');
-      let painting = false;
-      let currentColor = '#000000';
-      let currentBrush = 'pencil';
-      let brushSize = 5;
-      let softness = 0.5;
-      let backgroundImage = null;
+<script>
+(() => {
+  // DOM
+  const colorPicker = document.getElementById('colorPicker');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const brushSizeInput = document.getElementById('brushSize');
+  const softnessInput = document.getElementById('softness');
+  const pBtn = document.getElementById('pencilBtn');
+  const sBtn = document.getElementById('softBtn');
+  const pickBtn = document.getElementById('pickBtn');
+  const eraserBtn = document.getElementById('eraserBtn');
 
-      function setBrush(brushType) {
-          currentBrush = brushType;
-      }
+  const bgCanvas = document.getElementById('bgCanvas');
+  const drawCanvas = document.getElementById('drawCanvas');
+  const bgCtx = bgCanvas.getContext('2d');
+  const ctx = drawCanvas.getContext('2d');
 
-      function changeColor(color) {
-          currentColor = color;
-      }
+  const wrap = document.getElementById('canvasWrap');
 
-      function changeBrushSize(size) {
-          brushSize = size;
-      }
+  // State
+  let currentBrush = 'pencil'; // pencil, soft, colorPick, eraser
+  let currentColor = colorPicker.value || '#000000';
+  let brushSize = Number(brushSizeInput.value) || 5;
+  let softness = Number(softnessInput.value) || 0.5;
+  let painting = false;
+  let lastPos = {x:0,y:0};
+  let backgroundImage = null;
 
-      function changeSoftness(value) {
-          softness = value;
-      }
+  // High-DPI scaling function
+  function fitCanvasesToElement() {
+    // canvas CSS width = element width; set physical size accordingly for crisp lines
+    const rect = wrap.getBoundingClientRect();
+    const cssWidth = rect.width;
+    // maintain aspect ratio from base (800x600)
+    const targetHeight = Math.round(cssWidth * 600 / 800);
+    wrap.style.height = targetHeight + 'px';
 
-      function startPosition(e) {
-          painting = true;
-          draw(e);
-      }
+    const dpr = window.devicePixelRatio || 1;
+    // set physical size for both canvases
+    [bgCanvas, drawCanvas].forEach(c => {
+      c.width = Math.round(cssWidth * dpr);
+      c.height = Math.round(targetHeight * dpr);
+      c.style.width = cssWidth + 'px';
+      c.style.height = targetHeight + 'px';
+      const cctx = c.getContext('2d');
+      cctx.setTransform(dpr, 0, 0, dpr, 0, 0); // normalize coords to CSS pixels
+    });
 
-      function endPosition() {
-          painting = false;
-          ctx.beginPath();
-      }
+    // if there is a background image, redraw it scaled
+    if (backgroundImage) {
+      bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+      // drawImage will be transformed by setTransform already (we used dpr scaling)
+      bgCtx.drawImage(backgroundImage, 0, 0, cssWidth, targetHeight);
+    }
+  }
 
-      // --- FIXED COORDINATES USING getBoundingClientRect() ---
-      function getMousePos(e) {
-          const rect = canvas.getBoundingClientRect();
-          return {
-              x: e.clientX - rect.left,
-              y: e.clientY - rect.top
-          };
-      }
+  // Initialize sizing
+  window.addEventListener('resize', fitCanvasesToElement);
+  // call once
+  fitCanvasesToElement();
 
-      function draw(e) {
-          if (!painting) return;
+  // Tools UI
+  function setActiveButton(name) {
+    [pBtn,sBtn,pickBtn,eraserBtn].forEach(b => b.classList.remove('active'));
+    if (name === 'pencil') pBtn.classList.add('active');
+    if (name === 'soft') sBtn.classList.add('active');
+    if (name === 'colorPick') pickBtn.classList.add('active');
+    if (name === 'eraser') eraserBtn.classList.add('active');
+  }
+  setActiveButton('pencil');
 
-          const pos = getMousePos(e);
-          const x = pos.x;
-          const y = pos.y;
+  pBtn.addEventListener('click', ()=>{ currentBrush='pencil'; setActiveButton('pencil'); });
+  sBtn.addEventListener('click', ()=>{ currentBrush='soft'; setActiveButton('soft'); });
+  pickBtn.addEventListener('click', ()=>{ currentBrush='colorPick'; setActiveButton('colorPick'); });
+  eraserBtn.addEventListener('click', ()=>{ currentBrush='eraser'; setActiveButton('eraser'); });
 
-          ctx.lineWidth = brushSize;
-          ctx.lineCap = 'round';
+  colorPicker.addEventListener('input', (e)=>{ currentColor = e.target.value; });
 
-          if (currentBrush === 'pencil') {
-              ctx.globalAlpha = 1;
-              ctx.strokeStyle = currentColor;
-              ctx.lineTo(x, y);
-              ctx.stroke();
-              ctx.beginPath();
-              ctx.moveTo(x, y);
+  brushSizeInput.addEventListener('input', (e)=>{ brushSize = Number(e.target.value); });
+  softnessInput.addEventListener('input', (e)=>{ softness = Number(e.target.value); });
 
-          } else if (currentBrush === 'soft') {
-              ctx.globalAlpha = softness;
-              ctx.strokeStyle = currentColor;
-              ctx.lineTo(x, y);
-              ctx.stroke();
-              ctx.beginPath();
-              ctx.moveTo(x, y);
-              ctx.globalAlpha = 1;
+  // pointer helpers
+  function getPointerPos(e, canvasElement) {
+    // Use bounding rect to convert clientX/clientY to canvas CSS pixels
+    const rect = canvasElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    return { x, y };
+  }
 
-          } else if (currentBrush === 'eraser') {
-              ctx.globalAlpha = 1;
-              ctx.globalCompositeOperation = 'destination-out';
-              ctx.lineTo(x, y);
-              ctx.stroke();
-              ctx.beginPath();
-              ctx.moveTo(x, y);
-              ctx.globalCompositeOperation = 'source-over';
-          }
-      }
+  // Drawing behaviour: proper beginPath on down and lineTo on move
+  function pointerDown(e) {
+    // If color pick mode: pick pixel immediately
+    if (currentBrush === 'colorPick') {
+      pickColor(e);
+      return;
+    }
 
-      function uploadImage(event) {
-          const file = event.target.files[0];
-          const reader = new FileReader();
+    // start drawing
+    painting = true;
+    const pos = getPointerPos(e, drawCanvas);
+    lastPos = pos;
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-          reader.onload = function (e) {
-              const img = new Image();
-              img.onload = function () {
-                  backgroundImage = img;
-                  redrawCanvas();
-              };
-              img.src = e.target.result;
-          };
+    if (currentBrush === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = (currentBrush === 'soft') ? softness : 1;
+      ctx.strokeStyle = currentColor;
+    }
 
-          if (file) reader.readAsDataURL(file);
-      }
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    // prevent default to avoid scrolling on touch
+    e.preventDefault();
+  }
 
-      function redrawCanvas() {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          if (backgroundImage) {
-              ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-          }
-      }
+  function pointerMove(e) {
+    if (!painting) return;
+    const pos = getPointerPos(e, drawCanvas);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    // prepare for next segment
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    lastPos = pos;
+    e.preventDefault();
+  }
 
-      // --- FIXED COLOR PICKER COORDINATES ---
-      function pickColor(e) {
-          const pos = getMousePos(e);
-          const x = pos.x;
-          const y = pos.y;
+  function pointerUp(e) {
+    if (!painting) return;
+    painting = false;
+    // ensure path closed
+    ctx.beginPath();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+  }
 
-          const imgData = ctx.getImageData(x, y, 1, 1);
-          const color = imgData.data;
+  // Use pointer events for mouse/touch unified handling
+  drawCanvas.addEventListener('pointerdown', pointerDown);
+  window.addEventListener('pointermove', pointerMove);
+  window.addEventListener('pointerup', pointerUp);
+  // prevent touch gestures from selecting or scrolling while interacting with canvas
+  drawCanvas.addEventListener('touchstart', (e)=>e.preventDefault(), {passive:false});
 
-          currentColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-          document.getElementById('colorPicker').value = rgbToHex(color[0], color[1], color[2]);
-      }
+  // Upload background image
+  uploadBtn.addEventListener('change', (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(loadEv) {
+      const img = new Image();
+      img.onload = function() {
+        backgroundImage = img;
+        // redraw background scaled to CSS size
+        fitCanvasesToElement();
+      };
+      img.src = loadEv.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 
-      function rgbToHex(r, g, b) {
-          return "#" + [r, g, b].map((x) => {
-              const hex = x.toString(16);
-              return hex.length === 1 ? "0" + hex : hex;
-          }).join("");
-      }
+  // Pick color from composed image (bg + drawing)
+  function pickColor(e) {
+    // Create offscreen temp canvas sized to CSS pixels
+    const rect = wrap.getBoundingClientRect();
+    const cssW = rect.width;
+    const cssH = rect.height;
 
-      function saveDrawing() {
-          const imageUrl = canvas.toDataURL('image/png');
-          const link = document.createElement('a');
-          link.href = imageUrl;
-          link.download = 'drawing.png';
-          link.click();
-      }
+    const temp = document.createElement('canvas');
+    temp.width = cssW;
+    temp.height = cssH;
+    const tctx = temp.getContext('2d');
 
-      canvas.addEventListener('mousedown', (e) => {
-          if (currentBrush === 'colorPick') {
-              pickColor(e);
-          } else {
-              startPosition(e);
-          }
-      });
+    // draw background (if exists)
+    if (backgroundImage) {
+      tctx.drawImage(backgroundImage, 0, 0, cssW, cssH);
+    } else {
+      // white background fallback
+      tctx.fillStyle = '#ffffff';
+      tctx.fillRect(0,0,cssW,cssH);
+    }
 
-      canvas.addEventListener('mouseup', endPosition);
-      canvas.addEventListener('mousemove', draw);
-      canvas.addEventListener('mouseout', endPosition);
-  </script>
+    // draw the current strokes (drawCanvas has been transformed for DPR, but CSS pixels content is visible,
+    // so draw the drawCanvas DOM image on temp at CSS size)
+    tctx.drawImage(drawCanvas, 0, 0, cssW, cssH);
 
+    // get pointer pos relative to composed (use event client coords)
+    const pos = getPointerPos(e, wrap);
+    const x = Math.floor(pos.x), y = Math.floor(pos.y);
+
+    // clamp
+    if (x < 0 || y < 0 || x >= temp.width || y >= temp.height) return;
+
+    const data = tctx.getImageData(x, y, 1, 1).data;
+    const hex = rgbToHex(data[0], data[1], data[2]);
+    currentColor = hex;
+    colorPicker.value = hex;
+  }
+
+  function rgbToHex(r,g,b){
+    return "#" + [r,g,b].map(v => {
+      const h = v.toString(16);
+      return h.length===1 ? "0"+h : h;
+    }).join('');
+  }
+
+  // Save: combine bg + draw into final image and trigger download
+  saveBtn.addEventListener('click', () => {
+    const rect = wrap.getBoundingClientRect();
+    const cssW = Math.round(rect.width);
+    const cssH = Math.round(rect.height);
+
+    const temp = document.createElement('canvas');
+    temp.width = cssW;
+    temp.height = cssH;
+    const tctx = temp.getContext('2d');
+
+    if (backgroundImage) tctx.drawImage(backgroundImage, 0, 0, cssW, cssH);
+    else { tctx.fillStyle = '#ffffff'; tctx.fillRect(0,0,cssW,cssH); }
+
+    tctx.drawImage(drawCanvas, 0, 0, cssW, cssH);
+
+    const url = temp.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'drawing.png';
+    a.click();
+  });
+
+  // initial canvas clearing style
+  ctx.lineWidth = brushSize;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // call resize handler once more to ensure background is drawn if uploaded earlier
+  fitCanvasesToElement();
+
+  // small guard: if you navigate to the page and pointer capture oddities occur, reset painting
+  window.addEventListener('blur', ()=>{ painting=false; ctx.beginPath(); });
+
+})();
+</script>
 </body>
 </html>
