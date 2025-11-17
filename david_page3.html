@@ -1,44 +1,27 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>History of Pizza</title>
+    <title>Images of Pizza</title>
     <style>
         body {
+            text-align: center;
             background-color: darkslategrey;
             color: aqua;
             font-family: Arial, sans-serif;
             padding: 50px;
-            line-height: 1.6;
         }
 
         h1 {
-            text-align: center;
             font-size: 60px;
             margin-bottom: 40px;
-        }
-
-        h2 {
-            font-size: 40px;
-            margin-top: 40px;
-        }
-
-        p {
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-
-        ul {
-            font-size: 28px;
-            list-style: disc;
-            margin-left: 40px;
         }
 
         .pizza-images {
             display: flex;
             justify-content: center;
-            gap: 40px;
-            margin-top: 40px;
-            flex-wrap: wrap;
+            gap: 20px;
+            flex-wrap: nowrap; 
+            overflow-x: auto; 
         }
 
         .pizza {
@@ -48,37 +31,37 @@
         }
 
         .pizza img {
-            width: 300px;
-            height: 200px;
+            width: 400px;
+            height: 250px;
             border-radius: 20px;
-            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
+
+        .pizza img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px aqua;
+        }
+
+        a.main-page-link {
+            font-size: 40px;
+            color: aqua;
+            text-decoration: none;
+            background-color: darkslategrey;
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 40px;
+        }
+        .main-page-link:hover {
+    transform: scale(1.1);
+    background-color: midnightblue;
+}
     </style>
 </head>
 <body>
     <form id="form1" runat="server">
-        <h1>History of Pizza</h1>
-
-        <h2>Ancient origins</h2>
-        <p>Flatbreads with toppings existed in ancient civilizations like Egypt, Greece, and Rome. They were simple, often just herbs and oils.</p>
-
-        <h2>Modern pizza</h2>
-        <p>Pizza as we know it started in Naples, Italy in the 18th–19th centuries. It was a street food for the poor, often topped with tomatoes, cheese, oil, and sometimes anchovies.</p>
-
-        <h2>Margherita pizza</h2>
-        <p>In 1889, a pizza with tomatoes, mozzarella, and basil was named Pizza Margherita after Queen Margherita of Italy, representing the colors of the Italian flag.</p>
-
-        <h2>Spread worldwide</h2>
-        <p>Italian immigrants brought pizza to the U.S. in the late 19th century. It became popular in cities like New York and Chicago, evolving into styles like New York thin crust and Chicago deep-dish.</p>
-
-        <h2>Interesting Facts</h2>
-        <ul>
-            <li>The world’s largest pizza was made in 2012 in Italy and measured over 1261 square meters.</li>
-            <li>October 9 is National Pizza Day in the United States.</li>
-            <li>There are over 70 billion pizzas sold worldwide each year.</li>
-            <li>Hawaiian pizza (with pineapple) was actually invented in Canada, not Hawaii.</li>
-            <li>The most expensive pizza ever made cost around $12,000 and included edible gold and caviar.</li>
-        </ul>
+        <h1>Images of Pizza</h1>
 
         <div class="pizza-images">
             <div class="pizza">
@@ -93,27 +76,24 @@
             <div class="pizza">
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSs9h8sD4poZweaFnrHo--e7nq9c2RCWn5U0g&s" alt="Pizza 4" />
             </div>
+            <div class="pizza">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZ7_pv75NJsJ5B0VxTzfM5UT3DWip5RK6tmw&s" alt="Pizza 5" />
+            </div>
+            <div class="pizza">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSR-A5GVBc5aHz73slluZnOf8-MAF6qJ7N_Tg&s" alt="Pizza 6" />
+            </div>
+            <div class="pizza">
+                <img src="https://www.yummytummyaarthi.com/wp-content/uploads/2015/11/chicken-pizza-1.jpeg" alt="Pizza 7" />
+            </div>
+             <div class="pizza">
+     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYxOK2U7gNTVACTZj8zx_OFhCznJgVsUwnDw&s" alt="Pizza 8" />
+ </div>
+                        <div class="pizza">
+    <img src="https://images.prismic.io/eataly-us/ed3fcec7-7994-426d-a5e4-a24be5a95afd_pizza-recipe-main.jpg?auto=compress,format" alt="Pizza 9" />
+</div>
         </div>
-       <a href="david_page1.html" class="main-page-link">To the main page</a>
 
-<style>
-.main-page-link {
-    font-size: 40px;
-    color: aqua;
-    text-decoration: none;
-    background-color: darkslategrey;
-    padding: 10px 20px;
-    border-radius: 10px;
-    display: inline-block;
-    transition: transform 0.3s;
-}
-
-.main-page-link:hover {
-    transform: scale(1.1);
-    background-color: midnightblue;
-}
-</style>
+        <a href="page1.aspx" class="main-page-link">To the main page</a>
     </form>
 </body>
 </html>
-
