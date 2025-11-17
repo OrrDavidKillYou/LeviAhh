@@ -1,88 +1,104 @@
-
-
-
-
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Sources Information</title>
+    <title>Pizza Menu</title>
     <style>
+        a {
+    color: aqua;
+    text-decoration: none;
+    font-size: 28px;
+    display: inline-block;
+    margin-top: 40px;
+    border: 2px solid aqua;
+    padding: 10px 20px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+a:hover {
+    background-color: rgba(0, 255, 255, 0.2);
+    transform: scale(1.05);
+}
         body {
             text-align: center;
+            font-size: 24px;
             background-color: darkslategrey;
             color: aqua;
             font-family: Arial, sans-serif;
             padding: 50px;
         }
 
-        h1 {
-            font-size: 70px;
-            margin-bottom: 40px;
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            border: 3px solid aqua;
+            width: 90%;
+            background-color: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
         }
 
-        p {
+        th, td {
+            border: 1px solid aqua;
+            padding: 20px;
+            text-align: center;
+        }
+
+        th {
+            background-color: rgba(0, 255, 255, 0.2);
             font-size: 30px;
         }
 
-        a {
-            font-size: 30px;
-            color: aqua;
-            text-decoration: none;
-            background-color: darkslategrey;
-            padding: 10px 20px;
-            border-radius: 10px;
-            display: inline-block;
-            margin: 20px 10px 40px 10px;
-            transition: transform 0.3s, background-color 0.3s;
+        tr:hover {
+            background-color: rgba(0, 255, 255, 0.1);
+            transition: 0.3s;
         }
 
-        a:hover {
-            transform: scale(1.1);
-            background-color: darkblue;
-        }
-
-        .contact {
-            font-size: 40px;
-            background-color: darkslategrey;
-            padding: 10px 20px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-bottom: 40px;
-        }
-
-        .pizza-img img {
-            width: 400px;
-            height: 250px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .pizza-img img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px aqua;
+        img {
+            border-radius: 15px;
         }
     </style>
 </head>
 <body>
-    <form id="form1" runat="server">
-        <h1>Sources Information</h1>
+    <h1>🍕 Pizza Menu 🍕</h1>
 
-        <p>Here you can find the source of information about pizza history:</p>
-        <a href="https://www.lacucinaitaliana.com/italian-food/italian-dishes/history-pizza-incredible-tale" target="_blank">
-            View Source
-        </a>
+    <table>
+        <tr>
+            <th>Photo</th>
+            <th>Pizza Name</th>
+            <th>Description</th>
+            <th>Price</th>
+        </tr>
 
-        <div class="pizza-img">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTs3HaWprjBE3nMGKyH-Myd8D3jK0U0EUqTLw&s" alt="Pizza Image" />
-        </div>
+        <tr>
+            <td>
+                <img src="https://eu.gozney.com/cdn/shop/articles/Mike_s_Sicilian_Pizza_-_Large1.jpg?v=1661460779&width=1500" 
+                     alt="Sicilian Pizza" width="250">
+            </td>
+            <td>Sicilian Pizza</td>
+            <td>Thick crust, rich tomato sauce, mozzarella cheese, and aromatic herbs. A classic from Palermo.</td>
+            <td>₪45</td>
+        </tr>
 
-        <div class="contact">
-            Contact with me: 0527025873
-        </div>
+        <tr>
+            <td>
+                <img src="https://www.vindulge.com/wp-content/uploads/2022/05/Margherita-Pizza.jpg" 
+                     alt="Margherita Pizza" width="250">
+            </td>
+            <td>Margherita Pizza</td>
+            <td>Classic Italian style — thin crust, fresh tomatoes, basil, and creamy mozzarella.</td>
+            <td>₪39</td>
+        </tr>
 
-        <a href="david_page1.html">Back to Main Page</a>
-    </form>
+        <tr>
+            <td>
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT49yP8FPsJ6-SSEwow4KeAZA5s1lxmW9MB5Q&s" 
+                     alt="Pepperoni Pizza" width="250">
+            </td>
+            <td>Pepperoni Pizza</td>
+            <td>Spicy pepperoni, stretchy cheese, and flavorful tomato sauce — America’s favorite pizza.</td>
+            <td>₪42</td>
+        </tr>
+    </table>
+     <a href="page1.aspx" class="back-link">⬅ Back to Main Page</a>
 </body>
 </html>
