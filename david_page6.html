@@ -1,0 +1,128 @@
+<style>
+    body {
+        text-align: center;
+        background-color: darkslategrey;
+        color: aqua;
+        font-family: Arial, sans-serif;
+        padding: 50px;
+    }
+
+    h1 {
+        font-size: 70px;
+        margin-bottom: 40px;
+    }
+
+    p {
+        font-size: 30px;
+    }
+
+    a {
+        font-size: 30px;
+        color: aqua;
+        text-decoration: none;
+        background-color: darkslategrey;
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        margin: 20px 10px 40px 10px;
+        transition: transform 0.3s, background-color 0.3s;
+    }
+
+    a:hover {
+        transform: scale(1.1);
+        background-color: darkblue;
+    }
+
+    /* 🔹 STYLE YOUR INPUT BOXES */
+    input[type="text"], input[list], input[type="radio"] {
+        background-color: #1a2f2f;   /* inside color */
+        color: aqua;                  /* text color */
+        border: 2px solid aqua;
+        padding: 8px;
+        font-size: 18px;
+        border-radius: 8px;
+    }
+
+    input[type="text"]:focus, input[list]:focus {
+        outline: none;
+        box-shadow: 0 0 10px aqua;
+    }
+
+    label {
+        font-size: 24px;
+        display: inline-block;
+        margin-top: 20px;
+    }
+
+    input[type="submit"], input[type="reset"] {
+        background-color: darkslategrey;
+        color: aqua;
+        border: 2px solid aqua;
+        padding: 10px 20px;
+        font-size: 24px;
+        border-radius: 10px;
+        margin: 20px 10px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+.page-link {
+    font-size: 30px;
+    color: aqua;
+    text-decoration: none;
+    background-color: darkslategrey;
+    padding: 10px 20px;
+    border: 2px solid aqua;
+    border-radius: 10px;
+    display: inline-block;
+    margin: 30px;
+    transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+}
+
+.page-link:hover {
+    transform: scale(1.1);
+    background-color: darkblue;
+    box-shadow: 0 0 15px aqua;
+}
+
+    input[type="submit"]:hover, input[type="reset"]:hover {
+        background-color: darkblue;
+        transform: scale(1.1);
+    }
+</style>
+
+<html dir="ltr">
+<head>
+    <title>Contact</title>
+</head>
+
+<body>
+    <form>
+        <label for="name">What is your name?</label><br>
+        <input type="text" id="name" name="name"><br><br>
+
+        <label for="password">What is your password?</label><br>
+        <input type="text" id="password" name="password"><br><br>
+
+        <label for="mail">What is your email?</label><br>
+        <input type="text" id="mail" name="mail"><br><br>
+
+        <label>What is your grade?</label><br>
+        <label><input type="radio" name="grade" value="10"> Tenth</label>
+        <label><input type="radio" name="grade" value="11"> Eleventh</label>
+        <label><input type="radio" name="grade" value="12"> Twelfth</label><br><br>
+
+        <label for="school">What school are you from?</label><br>
+        <input list="schools" name="school" id="school"><br>
+        <datalist id="schools">
+            <option value="Ehad Haam">
+            <option value="Golda">
+            <option value="Brener">
+        </datalist>
+
+        <br><br>
+        <input type="submit" value="Send">
+        <input type="reset" value="Reset">
+    </form>
+<a href="david_page1.html" class="page-link">to main page</a>
+</body>
+</html>
