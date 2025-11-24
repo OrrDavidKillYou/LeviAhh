@@ -3,6 +3,7 @@
     <link rel="stylesheet" href="games.css">
 <title>contact</title>
 </head>
+    <body>
 <form>
 <label for="name">what is your name</label><input type="text" id="name" name="name"/>
 <br/>
@@ -17,8 +18,18 @@
 <br/>
 <label for="ten"> tenth</label>
 <input type="radio" id="ten" name="ten"/>
-<label for="ten">eleventh</label>
+<label for="eleven">eleventh</label>
 <input type="radio" id="eleven" name="eleven"/>
+<label for="twelve">twelveth</label>
+<input type="radio" id="twelve" name="twelve"/>
+<br/>
+    <label for="school">what school are you</label>
+<input list="schools" name="school" />
+    <datalist id="schools">
+ <option value="ehad haam">ehad haam</option>
+ <option value="golda">golda</option>
+ <option value="brener">brener</option>
+        </datalist>
 <br/>
 <input type="submit" value="send"/>
 <input type="reset" value="reset"/>
@@ -29,3 +40,5 @@
 
     
 </form>
+</body>
+</html>
