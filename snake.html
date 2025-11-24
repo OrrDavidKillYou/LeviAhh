@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>3D Snake Game — Skins Menu</title>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial,sans-serif;
+        }
+
+        #menuScreen, #gameScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #menuScreen {
+            background: #87CEEB;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+            #menuScreen h1 {
+                margin-bottom: 20px;
+            }
+
+        #skins {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            max-width: 80%;
+            margin-bottom: 20px;
+        }
+
+        .thumb {
+            width: 56px;
+            height: 56px;
+            border: 2px solid #aaa;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+            .thumb.selected {
+                border-color: #222;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.18);
+            }
+
+        button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            background: #2b8a3e;
+            color: white;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+            button.secondary {
+                background: #3f6fa8;
+            }
+
+        #score {
+            position: absolute;
+            top: 12px; /* Move it to the top */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Correct horizontal centering */
+            color: white;
+            font-size: 32px; /* Bigger font size */
+            font-weight: 700;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            z-index: 10;
+        }
+
+        .diga {
+            display: flex;
+            direction: rtl;
+            justify-content: space-evenly;
+            color: #0070BB;
+            font-size: 30px;
+            text-decoration: none;
+        }
+        {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+  
+    <div id="menuScreen">
+        <a href="index.html" class=diga>to main page</a>
+        <h1>Choose Your Snake</h1>
+        <div id="skins"></div>
+        <div id="previewContainer" style="width:120px;height:120px;margin-bottom:20px;"></div>
+        <button id="startBtn">Start Game</button>
+    </div>
+
+    <div id="gameScreen" style="display:none;">
+        <div id="score">Score: 0</div>
+    </div>
+
+    <audio id="eatSound" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+    <script>
+    // -------------------------
+        // Utils
+        function makeCanvas(size = 64) { const c = document.createElement('canvas'); c.width = c.height = size; return c; }
+
+        // -------------------------
+        // Skins
+        function skinAmerican() { const top = makeCanvas(), t = top.getContext('2d'); for (let y = 0; y < 64; y++) { t.fillStyle = (Math.floor(y / 5) % 2 === 0) ? '#B22234' : '#ffffff'; t.fillRect(0, y, 64, 5); } t.fillStyle = '#3C3B6E'; t.fillRect(0, 0, 24, 28); t.fillStyle = '#fff'; for (let y = 4; y < 28; y += 6) { for (let x = 4; x < 24; x += 6)t.fillRect(x, y, 2, 2); } const side = makeCanvas(), s = side.getContext('2d'); for (let x = 0; x < 64; x++) { s.fillStyle = (Math.floor(x / 4) % 2 === 0) ? '#B22234' : '#ffffff'; s.fillRect(x, 0, 4, 64); } return { top, side }; }
+        function skinRainbow() { const top = makeCanvas(), t = top.getContext('2d'); const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff']; colors.forEach((c, i) => { t.fillStyle = c; t.fillRect(0, i * Math.floor(64 / colors.length), 64, Math.ceil(64 / colors.length)); }); const side = makeCanvas(), s = side.getContext('2d'); s.fillStyle = '#00ff00'; s.fillRect(0, 0, 64, 64); return { top, side }; }
+        function skinGalaxy() { const top = makeCanvas(), t = top.getContext('2d'); const g = t.createLinearGradient(0, 0, 64, 64); g.addColorStop(0, '#0b0033'); g.addColorStop(0.5, '#3b0b59'); g.addColorStop(1, '#0b2333'); t.fillStyle = g; t.fillRect(0, 0, 64, 64); for (let i = 0; i < 120; i++) { t.fillStyle = ['#fff', '#ffd7ff', '#ccf'][Math.floor(Math.random() * 3)]; t.fillRect(Math.random() * 64, Math.random() * 64, Math.random() * 1.6, Math.random() * 1.6); } const side = makeCanvas(), s = side.getContext('2d'); const gg = s.createLinearGradient(0, 0, 64, 64); gg.addColorStop(0, '#001a3a'); gg.addColorStop(1, '#2b0040'); s.fillStyle = gg; s.fillRect(0, 0, 64, 64); for (let i = 0; i < 40; i++) { s.fillStyle = '#fff'; s.fillRect(Math.random() * 64, Math.random() * 64, 1.5, 1.5); } return { top, side }; }
+        function skinLava() { const top = makeCanvas(), t = top.getContext('2d'); t.fillStyle = '#330000'; t.fillRect(0, 0, 64, 64); for (let i = 0; i < 12; i++) { t.fillStyle = `rgb(${200 + Math.floor(Math.random() * 55)},${50 + Math.floor(Math.random() * 80)},0)`; const x = Math.random() * 48, y = Math.random() * 48, w = 16 + Math.random() * 30, h = 16 + Math.random() * 30; t.beginPath(); t.ellipse(x, y, w, h, Math.random() * Math.PI, 0, Math.PI * 2); t.fill(); } const side = makeCanvas(), s = side.getContext('2d'); const grad = s.createLinearGradient(0, 0, 64, 64); grad.addColorStop(0, '#4b0000'); grad.addColorStop(1, '#ff8a00'); s.fillStyle = grad; s.fillRect(0, 0, 64, 64); return { top, side }; }
+        function skinMatrix() { const top = makeCanvas(), t = top.getContext('2d'); t.fillStyle = '#000'; t.fillRect(0, 0, 64, 64); t.fillStyle = '#00FF66'; t.font = '8px monospace'; for (let x = 0; x < 64; x += 6)for (let y = 0; y < 64; y += 8) { if (Math.random() < 0.25) t.fillText(String.fromCharCode(65 + Math.floor(Math.random() * 26)), x, y + 6); } const side = makeCanvas(), s = side.getContext('2d'); s.fillStyle = '#001100'; s.fillRect(0, 0, 64, 64); for (let i = 0; i < 120; i++) { if (Math.random() < 0.25) { s.fillStyle = '#00FF66'; s.fillRect(Math.random() * 64, Math.random() * 64, 1.5, 3); } } return { top, side }; }
+        function skinNeon() { const top = makeCanvas(), t = top.getContext('2d'); t.fillStyle = '#0ff'; t.fillRect(0, 0, 64, 64); const side = makeCanvas(), s = side.getContext('2d'); s.fillStyle = '#f0f'; s.fillRect(0, 0, 64, 64); return { top, side }; }
+        function skinGold() { const top = makeCanvas(), t = top.getContext('2d'); t.fillStyle = '#FFD700'; t.fillRect(0, 0, 64, 64); const side = makeCanvas(), s = side.getContext('2d'); s.fillStyle = '#DAA520'; s.fillRect(0, 0, 64, 64); return { top, side }; }
+        function skinCamo() { const top = makeCanvas(), t = top.getContext('2d'); for (let i = 0; i < 64; i += 8) { for (let j = 0; j < 64; j += 8) { t.fillStyle = ['#556B2F', '#6B8E23', '#808000', '#2E8B57'][Math.floor(Math.random() * 4)]; t.fillRect(i, j, 8, 8); } } const side = makeCanvas(), s = side.getContext('2d'); for (let i = 0; i < 64; i += 8) { for (let j = 0; j < 64; j += 8) { s.fillStyle = ['#556B2F', '#6B8E23', '#808000', '#2E8B57'][Math.floor(Math.random() * 4)]; s.fillRect(i, j, 8, 8); } } return { top, side }; }
+
+        const BUILTINS = [skinAmerican, skinRainbow, skinGalaxy, skinLava, skinMatrix, skinNeon, skinGold, skinCamo];
+
+        // -------------------------
+        // Menu Thumbnails
+        const skinsDiv = document.getElementById('skins');
+        let skinsData = [];
+        let selectedIndex = 0;
+        BUILTINS.forEach((fn, i) => {
+            const { top, side } = fn(); skinsData.push({ top, side });
+            const thumb = document.createElement('canvas'); thumb.width = thumb.height = 56;
+            thumb.getContext('2d').drawImage(side, 0, 0, 56, 56);
+            thumb.className = 'thumb' + (i === 0 ? ' selected' : '');
+            thumb.addEventListener('click', () => { selectSkin(i); });
+            skinsDiv.appendChild(thumb);
+            skinsData[i].thumb = thumb;
+        });
+
+        // -------------------------
+        // Preview Renderer
+        let previewRenderer, previewScene, previewCamera, previewCube;
+        function initPreview() {
+            const container = document.getElementById('previewContainer');
+            previewRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); previewRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(previewRenderer.domElement);
+            previewScene = new THREE.Scene();
+            previewCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+            previewCamera.position.set(2, 2, 2); previewCamera.lookAt(0, 0, 0);
+            const light = new THREE.DirectionalLight(0xffffff, 1); light.position.set(5, 5, 5);
+            previewScene.add(light); previewScene.add(new THREE.AmbientLight(0x404040));
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            previewCube = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xffffff }));
+            previewScene.add(previewCube);
+            updatePreview(); animatePreview();
+        }
+        function updatePreview() {
+            if (!previewCube) return;
+            const sel = skinsData[selectedIndex]; const topTex = new THREE.CanvasTexture(sel.top); const sideTex = new THREE.CanvasTexture(sel.side);
+            topTex.magFilter = THREE.NearestFilter; topTex.minFilter = THREE.NearestFilter;
+            sideTex.magFilter = THREE.NearestFilter; sideTex.minFilter = THREE.NearestFilter;
+            const sideMat = new THREE.MeshStandardMaterial({ map: sideTex });
+            const topMat = new THREE.MeshStandardMaterial({ map: topTex });
+            const bottomMat = new THREE.MeshStandardMaterial({ map: sideTex, color: 0x222222 });
+            previewCube.material = [sideMat, sideMat, topMat, bottomMat, sideMat, sideMat];
+        }
+        function animatePreview() { requestAnimationFrame(animatePreview); if (previewCube) previewCube.rotation.y += 0.02; previewRenderer.render(previewScene, previewCamera); }
+        initPreview();
+        function selectSkin(i) { skinsData[selectedIndex].thumb.classList.remove('selected'); selectedIndex = i; skinsData[selectedIndex].thumb.classList.add('selected'); updatePreview(); }
+
+        // -------------------------
+        // Game Setup
+        let scene, camera, renderer;
+        let snake = [], snakeDir = { x: 1, y: 0, z: 0 }, gridSize = 20, cubeSize = 1;
+        let apple = null, score = 0, moveInterval = 200, lastMove = 0, gameOver = false, firstMove = true;
+        let currentMaterialsArray = null;
+
+        function updateMaterialsFromSelection() {
+            const sel = skinsData[selectedIndex];
+            const topTex = new THREE.CanvasTexture(sel.top); const sideTex = new THREE.CanvasTexture(sel.side);
+            topTex.magFilter = THREE.NearestFilter; topTex.minFilter = THREE.NearestFilter;
+            sideTex.magFilter = THREE.NearestFilter; sideTex.minFilter = THREE.NearestFilter;
+            const sideMat = new THREE.MeshStandardMaterial({ map: sideTex });
+            const topMat = new THREE.MeshStandardMaterial({ map: topTex });
+            const bottomMat = new THREE.MeshStandardMaterial({ map: sideTex, color: 0x222222 });
+            currentMaterialsArray = [sideMat, sideMat, topMat, bottomMat, sideMat, sideMat];
+        }
+
+        function initThree() {
+            if (scene) return; // Prevent creating multiple renderers/scenes
+            scene = new THREE.Scene(); scene.background = new THREE.Color(0x87CEEB);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(gridSize / 2, gridSize * 1.5, gridSize * 2); camera.lookAt(gridSize / 2, 0, gridSize / 2);
+            renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('gameScreen').appendChild(renderer.domElement);
+
+            const light = new THREE.DirectionalLight(0xffffff, 1); light.position.set(1, 2, 1); scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(gridSize, gridSize), new THREE.MeshPhongMaterial({ color: 0xaaaaaa }));
+            floor.rotation.x = -Math.PI / 2; floor.position.set(gridSize / 2, 0, gridSize / 2); scene.add(floor);
+            const gridHelper = new THREE.GridHelper(gridSize, gridSize, 0x444444, 0x888888); gridHelper.position.set(gridSize / 2, 0.01, gridSize / 2); scene.add(gridHelper);
+
+            const wallMaterial = new THREE.MeshPhongMaterial({ color: 0x3333ff, opacity: 0.45, transparent: true });
+            const thickness = 0.5;
+            const front = new THREE.Mesh(new THREE.BoxGeometry(gridSize, cubeSize * 5, thickness), wallMaterial); front.position.set(gridSize / 2, 2.5, -thickness / 2); scene.add(front);
+            const back = new THREE.Mesh(new THREE.BoxGeometry(gridSize, cubeSize * 5, thickness), wallMaterial); back.position.set(gridSize / 2, 2.5, gridSize + thickness / 2); scene.add(back);
+            const left = new THREE.Mesh(new THREE.BoxGeometry(thickness, cubeSize * 5, gridSize), wallMaterial); left.position.set(-thickness / 2, 2.5, gridSize / 2); scene.add(left);
+            const right = new THREE.Mesh(new THREE.BoxGeometry(thickness, cubeSize * 5, gridSize), wallMaterial); right.position.set(gridSize + thickness / 2, 2.5, gridSize / 2); scene.add(right);
+        }
+
+        function addCube(x, y, z) {
+            const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+            const mats = currentMaterialsArray.map(m => m.clone());
+            const cube = new THREE.Mesh(geometry, mats);
+            cube.position.set(x + 0.5, y + 0.5, z + 0.5);
+            scene.add(cube); return cube;
+        }
+
+        function spawnApple() {
+            const x = Math.floor(Math.random() * gridSize), z = Math.floor(Math.random() * gridSize), y = 0;
+            if (apple) scene.remove(apple);
+            apple = addCube(x, y, z);
+            apple.material.forEach(m => { m.color = new THREE.Color(0xff0000); m.emissive = new THREE.Color(0x220000); });
+            apple.userData = { x, y, z };
+            // Randomize screen color when eaten
+            const r = Math.random(), g = Math.random(), b = Math.random();
+            scene.background = new THREE.Color(r, g, b);
+        }
+
+        function initSnake() {
+            updateMaterialsFromSelection();
+            snake.forEach(c => scene.remove(c.mesh)); snake = [];
+            const startX = Math.floor(gridSize / 2), startZ = Math.floor(gridSize / 2);
+            for (let i = 0; i < 3; i++) { const cube = addCube(startX - i, 0, startZ); snake.push({ mesh: cube, x: startX - i, y: 0, z: startZ }); }
+            snakeDir = { x: 1, y: 0, z: 0 }; gameOver = false; score = 0; firstMove = true;
+            document.getElementById('score').innerText = "Score: 0";
+        }
+
+        function moveSnake() {
+            if (gameOver) return;
+            const head = snake[0];
+            const newX = head.x + snakeDir.x;
+            const newY = head.y + snakeDir.y;
+            const newZ = head.z + snakeDir.z;
+
+            if (!firstMove) {
+                if (newX < 0 || newX >= gridSize || newZ < 0 || newZ >= gridSize || snake.some(s => s.x === newX && s.y === newY && s.z === newZ)) {
+                    endGame(); return;
+                }
+            }
+            firstMove = false;
+
+            let lastPos = { x: newX, y: newY, z: newZ };
+            for (let i = 0; i < snake.length; i++) { const temp = { x: snake[i].x, y: snake[i].y, z: snake[i].z }; snake[i].x = lastPos.x; snake[i].y = lastPos.y; snake[i].z = lastPos.z; snake[i].mesh.position.set(lastPos.x + 0.5, lastPos.y + 0.5, lastPos.z + 0.5); lastPos = temp; }
+
+            if (head.x === apple.userData.x && head.z === apple.userData.z) {
+                const tail = snake[snake.length - 1]; const newCube = addCube(tail.x, tail.y, tail.z); snake.push({ mesh: newCube, x: tail.x, y: tail.y, z: tail.z });
+                score++; document.getElementById('score').innerText = "Score: " + score;
+                spawnApple(); document.getElementById('eatSound').play();
+            }
+        }
+
+        function endGame() {
+            gameOver = true;
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('menuScreen').style.display = 'flex';
+            snake.forEach(s => scene.remove(s.mesh)); snake = [];
+            if (apple) scene.remove(apple); apple = null;
+        }
+
+        // -------------------------
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "ArrowUp" && snakeDir.z === 0) { snakeDir = { x: 0, y: 0, z: -1 }; }
+            if (e.key === "ArrowDown" && snakeDir.z === 0) { snakeDir = { x: 0, y: 0, z: 1 }; }
+            if (e.key === "ArrowLeft" && snakeDir.x === 0) { snakeDir = { x: -1, y: 0, z: 0 }; }
+            if (e.key === "ArrowRight" && snakeDir.x === 0) { snakeDir = { x: 1, y: 0, z: 0 }; }
+        });
+
+        function animate(time) {
+            requestAnimationFrame(animate);
+            if (!lastMove) lastMove = time;
+            if (time - lastMove > moveInterval) { moveSnake(); lastMove = time; }
+            if (apple) apple.rotation.y += 0.05;
+            if (renderer) renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            if (renderer && camera) {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+            }
+        });
+
+        // -------------------------
+        // Initialize Three.js once
+        initThree();
+
+        // Start button
+        document.getElementById('startBtn').addEventListener('click', () => {
+            firstMove = true;
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+
+            initSnake();
+            spawnApple();
+
+            // Reset background
+            scene.background = new THREE.Color(0x87CEEB);
+
+            animate();
+        });</script>
+
+</body>
+</html>
