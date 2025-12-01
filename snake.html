@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>3D Snake Game — Skins Menu</title>
-    
+   <head runat="server">
+    <meta name="google-site-verification" content="s2QW2Qy4n45IYWnDdE2fYqbf7HpnLqR4ykNYHJt9ncM" />
+    <title>HawkTuah</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/slR7PZN.png">
     <style>
+        
+      #backgroundImage {
+        border: none;
+        height: 100%;
+        pointer-events: none;
+        position: fixed;
+        top: 0;
+        visibility: hidden;
+        width: 100%;
+      }
+
         body {
             margin: 0;
             overflow: hidden;
@@ -73,7 +84,7 @@
             top: 12px; /* Move it to the top */
             left: 50%; /* Center horizontally */
             transform: translateX(-50%); /* Correct horizontal centering */
-            color: white;
+            color: black;
             font-size: 32px; /* Bigger font size */
             font-weight: 700;
             text-shadow: 0 2px 6px rgba(0,0,0,0.6);
@@ -88,15 +99,26 @@
             font-size: 30px;
             text-decoration: none;
         }
-        {
-            display: block;
-        }
+        
+.niga{
+         display: flex;
+     direction: rtl;
+     justify-content: space-evenly;
+     color: navy;
+     font-size: 30px;
+     text-decoration: none;
+     margin-top:-100px;
+ 
+}
+    
     </style>
 </head>
 <body>
   
     <div id="menuScreen">
+          <h1 class="niga">levi snake</h1>
         <a href="index.html" class=diga>to main page</a>
+
         <h1>Choose Your Snake</h1>
         <div id="skins"></div>
         <div id="previewContainer" style="width:120px;height:120px;margin-bottom:20px;"></div>
@@ -105,6 +127,7 @@
 
     <div id="gameScreen" style="display:none;">
         <div id="score">Score: 0</div>
+
     </div>
 
     <audio id="eatSound" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
