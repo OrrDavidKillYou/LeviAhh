@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Levi Casino</title>
 <style>
   body {
@@ -15,9 +15,19 @@
     align-items: center;
   }
 
-  h2 {
+  /* SCALE EVERYTHING 1.2x */
+  .scale-container {
+    transform: scale(1.2);
+    transform-origin: top center;
+  }
+
+  .header {
+    text-align: center;
     margin-top: 20px;
   }
+
+  .header h2 { margin: 0; }
+  .header div { margin-top: 5px; font-size: 18px; }
 
   .game-container {
     display: flex;
@@ -27,40 +37,12 @@
     margin-top: 20px;
   }
 
-  .game-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  /* --- Roulette --- */
-  .wheel-wrapper {
-    width: 234px;  /* 1.3 times bigger */
-    height: 234px;
-    position: relative;
-  }
-
-  #wheel {
-    width: 100%;
-    height: 100%;
-    transition: transform 5s cubic-bezier(0.1, 0.1, 0, 1);
-    user-select: none;
-  }
-
-  .dd {
-    position: absolute;
-    top: -16px; /* adjusted for bigger size */
-    left: 50%;
-    transform: translateX(-50%);
-    height: 52px;  /* 1.3 times bigger */
-    width: auto;
-    z-index: 10;
-  }
+  .game-section { display: flex; flex-direction: column; align-items: center; }
 
   input, select, button {
-    margin-top: 12px;
-    padding: 10px;
-    font-size: 16px;
+    margin-top: 10px;
+    padding: 8px;
+    font-size: 14px;
     border-radius: 6px;
     border: none;
   }
@@ -69,13 +51,13 @@
     cursor: pointer;
     background: #28a745;
     color: white;
-    margin: 6px 0;
+    margin: 5px 0;
   }
 
   button:hover { background: #23963b; }
 
   .color-buttons button {
-    width: 91px; /* 1.3 times 70px */
+    width: 70px;
     font-weight: bold;
   }
 
@@ -83,21 +65,14 @@
   #blackBtn { background-color: black; color: white; }
   #numberBtn { background-color: blue; }
 
-  .selected {
-    border: 2px solid yellow;
-  }
+  .selected { border: 2px solid yellow; }
 
-  /* --- Slot Machine --- */
-  .slot-machine {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
+  .slot-machine { display: flex; justify-content: center; margin-top: 20px; }
 
   .reel {
-    width: 104px; /* 1.3 times 80px */
-    height: 104px;
-    margin: 0 6.5px; /* 1.3 times 5px */
+    width: 80px;
+    height: 80px;
+    margin: 0 5px;
     background: #222;
     border-radius: 10px;
     box-shadow: 0 0 10px #000;
@@ -105,45 +80,87 @@
     position: relative;
   }
 
-  .symbols {
+  .symbols { position: absolute; top: 0; width: 100%; }
+  .symbols img { display: block; width: 100%; height: 80px; object-fit: contain; }
+
+  #result, #coins { margin-top: 10px; font-size: 16px; min-height: 25px; text-align: center; }
+
+  a.didi { color: teal; text-decoration: none; margin-top: 10px; }
+
+  /* Horse racing */
+  .horse-track { position: relative; width: 200px; height: 120px; border: 2px solid #555; background: #222; margin-top: 10px; }
+  .horse { position: absolute; width: 30px; height: 30px; text-align: center; font-weight: bold; }
+
+  /* --- Roulette --- */
+  .wheel-wrapper {
+    width: 150px;
+    height: 150px;
+    position: relative;
+  }
+
+  #wheel {
+    width: 100%;
+    height: 100%;
+    transition: transform 5s cubic-bezier(0.1, 0.1, 0, 1);
+    user-select: none;
+    max-width: 150px;
+    max-height: 150px;
+  }
+
+  .dd {
     position: absolute;
-    top: 0;
-    width: 100%;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 35px;
+    width: auto;
+    z-index: 10;
   }
 
-  .symbols img {
-    display: block;
-    width: 100%;
-    height: 104px; /* scaled */
-    object-fit: contain;
-  }
-
-  #result, #coins {
-    margin-top: 10px;
-    font-size: 18px; /* slightly bigger */
-    min-height: 25px;
-    text-align: center;
-  }
-
-  a.didi {
-    color: teal;
-    text-decoration: none;
-    margin-top: 10px;
-  }
 </style>
 </head>
 <body>
 
-<h2>$ Levi Casino $</h2>
+<div class="scale-container">
 
-<div>Coins: <span id="coins">20</span></div>
+  <div class="header">
+    <h2>$ Levi Casino $</h2>
+    <div>Coins: <span id="coins">20</span></div>
+  </div>
 
 <div class="game-container">
+
+  <!-- HORSE RACING -->
+  <div class="game-section">
+    <div>Bet amount: <input type="number" id="horseBetAmount" min="1" value="1" style="width:60px"></div>
+    <div>Choose horse:
+      <select id="horseSelect">
+        <option value="1">Lessi 🐎</option>
+        <option value="2">Levi Monroe 🐎</option>
+        <option value="3">Levi Tyson 🐎</option>
+        <option value="4">Levipolion 🐎</option>
+      </select>
+    </div>
+    <button id="raceBtn">Start Race</button>
+    <div class="horse-track" id="horseTrack">
+      <div style="position:absolute; right:0; top:0; width:5px; height:120px; background:red;"></div>
+      <div class="horse" id="horse1" style="top:5px;"><img src="https://i.imgur.com/2lGPLGo.png" width="30" height="30"><div style="font-size:10px; text-align:center; color:white;">Lessi</div></div>
+      <div class="horse" id="horse2" style="top:35px;"><img src="https://i.imgur.com/0cPP22V.png" width="30" height="30"><div style="font-size:10px; text-align:center; color:white;">Levi Monroe</div></div>
+      <div class="horse" id="horse3" style="top:65px;"><img src="https://i.imgur.com/Y0xO0n8.png" width="30" height="30"><div style="font-size:10px; text-align:center; color:white;">Levi Tyson</div></div>
+      <div class="horse" id="horse4" style="top:95px;"><img src="https://i.imgur.com/pbYA8AB.jpeg" width="30" height="30"><div style="font-size:10px; text-align:center; color:white;">Levipolion</div></div>
+    </div>
+    <div id="raceResult"></div>
+  </div>
+
+  <!-- EMPTY SPACE -->
+  <div class="game-section">
+    <div style="height: 250px; width: 180px;"></div>
+  </div>
 
   <!-- ROULETTE -->
   <div class="game-section">
     <div>
-      Bet amount: <input type="number" id="rouletteBetAmount" min="1" value="1" style="width:80px" />
+      Bet amount: <input type="number" id="rouletteBetAmount" min="1" value="1" style="width:60px">
     </div>
 
     <div>
@@ -163,8 +180,8 @@
     </div>
 
     <div class="wheel-wrapper">
-      <img src="https://i.imgur.com/EIUFfYj.png" class="dd" />
-      <img id="wheel" src="https://i.imgur.com/ss7bzNq.png" />
+      <img src="https://i.imgur.com/EIUFfYj.png" class="dd">
+      <img id="wheel" src="https://i.imgur.com/ss7bzNq.png">
     </div>
 
     <button id="rouletteSpinBtn">Spin</button>
@@ -173,9 +190,7 @@
 
   <!-- SLOT MACHINE -->
   <div class="game-section">
-    <div>
-      Bet amount: <input type="number" id="slotBetAmount" min="1" value="1" style="width:80px" />
-    </div>
+    <div>Bet amount: <input type="number" id="slotBetAmount" min="1" value="1" style="width:60px"></div>
 
     <div class="slot-machine">
       <div class="reel" id="reel1"><div class="symbols"></div></div>
@@ -189,178 +204,224 @@
 
 </div>
 
-<a href="index.html" class="didi">Back to main page</a>
+<a href="#" class="didi">Back to main page</a>
 
 <script>
-    /* --- SHARED COINS --- */
-    let coins = 20;
-    const coinsDisplay = document.getElementById('coins');
+// COINS SHARED
+let coins = 20;
+const coinsDisplay = document.getElementById('coins');
 
-    /* --- ROULETTE SCRIPT --- */
-    let currentRotation = 0;
-    let selectedColor = null;
-    let numberMode = false;
+/////////////////////
+// HORSE RACING
+const horses = [
+  document.getElementById('horse1'),
+  document.getElementById('horse2'),
+  document.getElementById('horse3'),
+  document.getElementById('horse4')
+];
+const raceBtn = document.getElementById('raceBtn');
+const raceResult = document.getElementById('raceResult');
 
-    const rouletteNumbers = [
-        0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6,
-        27, 13, 36, 11, 30, 8, 23, 10, 5, 24,
-        16, 33, 1, 20, 14, 31, 9, 22, 18, 29,
-        7, 28, 12, 35, 3, 26
-    ];
-    const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-
-    const betNumberSelect = document.getElementById('betNumber');
-    const redBtn = document.getElementById('redBtn');
-    const blackBtn = document.getElementById('blackBtn');
-    const numberBtn = document.getElementById('numberBtn');
-    const rouletteSpinBtn = document.getElementById('rouletteSpinBtn');
-
-    function updateButtonHighlights() {
-        redBtn.classList.toggle('selected', selectedColor === 'red');
-        blackBtn.classList.toggle('selected', selectedColor === 'black');
-        numberBtn.classList.toggle('selected', numberMode);
+raceBtn.addEventListener('click',()=> {
+  const betAmount = parseInt(document.getElementById('horseBetAmount').value);
+  const chosenHorse = parseInt(document.getElementById('horseSelect').value)-1;
+  if(isNaN(betAmount)||betAmount<1||betAmount>coins){alert("Invalid bet!");return;}
+  coins -= betAmount;
+  coinsDisplay.textContent=coins;
+  raceBtn.disabled=true;
+  raceResult.textContent='';
+  horses.forEach(h=>h.style.left='0px');
+  const finishLine=160;
+  const horsePositions=[0,0,0,0];
+  const raceInterval=setInterval(()=> {
+    for(let i=0;i<horses.length;i++){
+      horsePositions[i]+=Math.random()*5;
+      if(horsePositions[i]>finishLine) horsePositions[i]=finishLine;
+      horses[i].style.left=horsePositions[i]+'px';
     }
-
-    function activateColor(color) {
-        selectedColor = color;
-        numberMode = false;
-        betNumberSelect.disabled = true;
-        betNumberSelect.value = '';
-        updateButtonHighlights();
+    const finished=horsePositions.some(p=>p>=finishLine);
+    if(finished){
+      clearInterval(raceInterval);
+      const winnerIndex=horsePositions.indexOf(Math.max(...horsePositions));
+      let winnerName=horses[winnerIndex].querySelector('div').textContent;
+      let resultText=`${winnerName} won! `;
+      if(winnerIndex===chosenHorse){const winnings=betAmount*3;coins+=winnings; resultText+=`You won ${winnings} coins! 🎉`;}
+      else resultText+='You lost your bet.';
+      raceResult.textContent=resultText;
+      coinsDisplay.textContent=coins;
+      raceBtn.disabled=false;
     }
+  },100);
+});
 
-    function activateNumberMode() {
-        selectedColor = null;
-        numberMode = true;
-        betNumberSelect.disabled = false;
-        updateButtonHighlights();
-    }
+/////////////////////
+// ROULETTE SCRIPT
+let currentRotation = 0;
+let selectedColor = null;
+let numberMode = false;
 
-    redBtn.addEventListener('click', () => activateColor('red'));
-    blackBtn.addEventListener('click', () => activateColor('black'));
-    numberBtn.addEventListener('click', () => activateNumberMode());
+const rouletteNumbers = [
+    0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6,
+    27, 13, 36, 11, 30, 8, 23, 10, 5, 24,
+    16, 33, 1, 20, 14, 31, 9, 22, 18, 29,
+    7, 28, 12, 35, 3, 26
+];
+const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 
-    betNumberSelect.addEventListener('change', () => {
-        if (!numberMode) { betNumberSelect.value = ''; alert("Press Number button first!"); }
-    });
+const betNumberSelect = document.getElementById('betNumber');
+const redBtn = document.getElementById('redBtn');
+const blackBtn = document.getElementById('blackBtn');
+const numberBtn = document.getElementById('numberBtn');
+const rouletteSpinBtn = document.getElementById('rouletteSpinBtn');
 
-    rouletteSpinBtn.addEventListener('click', () => {
-        const betAmount = parseInt(document.getElementById('rouletteBetAmount').value);
-        const betNumber = parseInt(betNumberSelect.value);
-        if (betAmount > coins || betAmount < 1) { alert("Invalid bet!"); return; }
-        if (!selectedColor && (!numberMode || isNaN(betNumber))) { alert("Select a number or color!"); return; }
+function updateButtonHighlights() {
+    redBtn.classList.toggle('selected', selectedColor === 'red');
+    blackBtn.classList.toggle('selected', selectedColor === 'black');
+    numberBtn.classList.toggle('selected', numberMode);
+}
 
-        coins -= betAmount;
-        coinsDisplay.textContent = coins;
-        rouletteSpinBtn.disabled = true;
-        document.getElementById('rouletteResult').textContent = '';
+function activateColor(color) {
+    selectedColor = color;
+    numberMode = false;
+    betNumberSelect.disabled = true;
+    betNumberSelect.value = '';
+    updateButtonHighlights();
+}
 
-        const extraSpin = Math.floor(Math.random() * 3000) + 2000;
-        currentRotation += extraSpin;
-        document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+function activateNumberMode() {
+    selectedColor = null;
+    numberMode = true;
+    betNumberSelect.disabled = false;
+    updateButtonHighlights();
+}
 
-        setTimeout(() => {
-            const normalizedRotation = currentRotation % 360;
-            const degreesPerNumber = 360 / rouletteNumbers.length;
-            const index = Math.floor(((360 - normalizedRotation + degreesPerNumber / 2) % 360) / degreesPerNumber);
-            const resultNumber = rouletteNumbers[index];
+redBtn.addEventListener('click', () => activateColor('red'));
+blackBtn.addEventListener('click', () => activateColor('black'));
+numberBtn.addEventListener('click', () => activateNumberMode());
 
-            let resultText = `Result: ${resultNumber}. `;
-            let winnings = 0;
+betNumberSelect.addEventListener('change', () => {
+    if (!numberMode) { betNumberSelect.value = ''; alert("Press Number button first!"); }
+});
 
-            if (selectedColor) {
-                const resultColor = redNumbers.includes(resultNumber) ? 'red' : (resultNumber === 0 ? 'none' : 'black');
-                if (resultColor === selectedColor) { winnings = Math.ceil(betAmount * 1.5); coins += winnings; resultText += `You won! +${winnings} coins.`; }
-                else resultText += "You lost!";
-            } else if (numberMode && !isNaN(betNumber)) {
-                if (resultNumber === 0 && betNumber === 0) { winnings = betAmount * 100; }
-                else if (resultNumber === betNumber) { winnings = betAmount * 30; }
-                coins += winnings;
-                resultText += (resultNumber === betNumber) ? `You won! +${winnings} coins.` : "You lost!";
-            }
+rouletteSpinBtn.addEventListener('click', () => {
+    const betAmount = parseInt(document.getElementById('rouletteBetAmount').value);
+    const betNumber = parseInt(betNumberSelect.value);
+    if (betAmount > coins || betAmount < 1) { alert("Invalid bet!"); return; }
+    if (!selectedColor && (!numberMode || isNaN(betNumber))) { alert("Select a number or color!"); return; }
 
-            coinsDisplay.textContent = coins;
-            document.getElementById('rouletteResult').textContent = resultText;
-            updateButtonHighlights();
-            rouletteSpinBtn.disabled = false;
-        }, 5000);
-    });
+    coins -= betAmount;
+    coinsDisplay.textContent = coins;
+    rouletteSpinBtn.disabled = true;
+    document.getElementById('rouletteResult').textContent = '';
 
-    /* --- SLOT MACHINE SCRIPT --- */
-    const reels = [
-        document.querySelector('#reel1 .symbols'),
-        document.querySelector('#reel2 .symbols'),
-        document.querySelector('#reel3 .symbols')
-    ];
-    const symbols = [
-        'https://i.imgur.com/0cPP22V.png',
-        'https://i.imgur.com/Y0xO0n8.png',
-        'https://i.imgur.com/2lGPLGo.png',
-        'https://i.imgur.com/ZHJMphT.jpeg',
-        'https://i.imgur.com/pbYA8AB.jpeg',
-        'https://i.imgur.com/jEFcDfE.jpeg'
-    ];
+    const extraSpin = Math.floor(Math.random() * 3000) + 2000;
+    currentRotation += extraSpin;
+    document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
 
-    function updateReels() {
-        reels.forEach(reel => {
-            const strip = symbols.concat(symbols).concat(symbols);
-            reel.innerHTML = strip.map(src => `<img src="${src}">`).join('');
-            reel.style.top = '0px';
-        });
-    }
-    updateReels();
+    setTimeout(() => {
+        const normalizedRotation = currentRotation % 360;
+        const degreesPerNumber = 360 / rouletteNumbers.length;
+        const index = Math.floor(((360 - normalizedRotation + degreesPerNumber / 2) % 360) / degreesPerNumber);
+        const resultNumber = rouletteNumbers[index];
 
-    function spinReel(reel, spins, delay) {
-        return new Promise(resolve => {
-            let position = 0;
-            const symbolHeight = 104; // updated for bigger reels
-            const interval = setInterval(() => {
-                position += 1;
-                reel.style.top = `-${(position % symbols.length) * symbolHeight}px`;
-            }, delay);
+        let resultText = `Result: ${resultNumber}. `;
+        let winnings = 0;
 
-            setTimeout(() => {
-                clearInterval(interval);
-                const stopIndex = Math.floor(Math.random() * symbols.length);
-                reel.style.top = `-${stopIndex * symbolHeight}px`;
-                resolve(stopIndex);
-            }, spins * delay);
-        });
-    }
-
-    document.getElementById('slotSpinBtn').addEventListener('click', async () => {
-        const betAmount = parseInt(document.getElementById('slotBetAmount').value);
-        if (isNaN(betAmount) || betAmount < 1) { alert("Enter valid bet!"); return; }
-        if (coins < betAmount) { alert("Not enough coins!"); return; }
-
-        coins -= betAmount;
-        coinsDisplay.textContent = coins;
-        document.getElementById('slotResult').textContent = '';
-        const spinBtn = document.getElementById('slotSpinBtn');
-        spinBtn.disabled = true;
-
-        const spinResults = await Promise.all([
-            spinReel(reels[0], 30 + Math.floor(Math.random() * 10), 50),
-            spinReel(reels[1], 35 + Math.floor(Math.random() * 10), 50),
-            spinReel(reels[2], 40 + Math.floor(Math.random() * 10), 50)
-        ]);
-
-        if (spinResults[0] === spinResults[1] && spinResults[1] === spinResults[2]) {
-            const winnings = betAmount * 100;
+        if (selectedColor) {
+            const resultColor = redNumbers.includes(resultNumber) ? 'red' : (resultNumber === 0 ? 'none' : 'black');
+            if (resultColor === selectedColor) { winnings = Math.ceil(betAmount * 1.5); coins += winnings; resultText += `You won! +${winnings} coins.`; }
+            else resultText += "You lost!";
+        } else if (numberMode && !isNaN(betNumber)) {
+            if (resultNumber === 0 && betNumber === 0) { winnings = betAmount * 100; }
+            else if (resultNumber === betNumber) { winnings = betAmount * 30; }
             coins += winnings;
-            document.getElementById('slotResult').textContent = `Jackpot! +${winnings} coins! 🎉`;
-        } else if (spinResults[0] === spinResults[1] || spinResults[1] === spinResults[2] || spinResults[0] === spinResults[2]) {
-            const winnings = betAmount * 3;
-            coins += winnings;
-            document.getElementById('slotResult').textContent = `You got a pair! +${winnings} coins.`;
-        } else {
-            document.getElementById('slotResult').textContent = `You lost!`;
+            resultText += (resultNumber === betNumber) ? `You won! +${winnings} coins.` : "You lost!";
         }
 
         coinsDisplay.textContent = coins;
-        spinBtn.disabled = false;
+        document.getElementById('rouletteResult').textContent = resultText;
+        updateButtonHighlights();
+        rouletteSpinBtn.disabled = false;
+    }, 5000);
+});
+
+/////////////////////
+// SLOT MACHINE SCRIPT
+const reels = [
+    document.querySelector('#reel1 .symbols'),
+    document.querySelector('#reel2 .symbols'),
+    document.querySelector('#reel3 .symbols')
+];
+const symbols = [
+    'https://i.imgur.com/0cPP22V.png',
+    'https://i.imgur.com/Y0xO0n8.png',
+    'https://i.imgur.com/2lGPLGo.png',
+    'https://i.imgur.com/ZHJMphT.jpeg',
+    'https://i.imgur.com/pbYA8AB.jpeg',
+    'https://i.imgur.com/jEFcDfE.jpeg'
+];
+
+function updateReels() {
+    reels.forEach(reel => {
+        const strip = symbols.concat(symbols).concat(symbols);
+        reel.innerHTML = strip.map(src => `<img src="${src}">`).join('');
+        reel.style.top = '0px';
     });
+}
+updateReels();
+
+function spinReel(reel, spins, delay) {
+    return new Promise(resolve => {
+        let position = 0;
+        const symbolHeight = 80;
+        const interval = setInterval(() => {
+            position += 1;
+            reel.style.top = `-${(position % symbols.length) * symbolHeight}px`;
+        }, delay);
+
+        setTimeout(() => {
+            clearInterval(interval);
+            const stopIndex = Math.floor(Math.random() * symbols.length);
+            reel.style.top = `-${stopIndex * symbolHeight}px`;
+            resolve(stopIndex);
+        }, spins * delay);
+    });
+}
+
+document.getElementById('slotSpinBtn').addEventListener('click', async () => {
+    const betAmount = parseInt(document.getElementById('slotBetAmount').value);
+    if (isNaN(betAmount) || betAmount < 1) { alert("Enter valid bet!"); return; }
+    if (coins < betAmount) { alert("Not enough coins!"); return; }
+
+    coins -= betAmount;
+    coinsDisplay.textContent = coins;
+    document.getElementById('slotResult').textContent = '';
+    const spinBtn = document.getElementById('slotSpinBtn');
+    spinBtn.disabled = true;
+
+    const spinResults = await Promise.all([
+        spinReel(reels[0], 30 + Math.floor(Math.random() * 10), 50),
+        spinReel(reels[1], 35 + Math.floor(Math.random() * 10), 50),
+        spinReel(reels[2], 40 + Math.floor(Math.random() * 10), 50)
+    ]);
+
+    if (spinResults[0] === spinResults[1] && spinResults[1] === spinResults[2]) {
+        const winnings = betAmount * 100;
+        coins += winnings;
+        document.getElementById('slotResult').textContent = `Jackpot! +${winnings} coins! 🎉`;
+    } else if (spinResults[0] === spinResults[1] || spinResults[1] === spinResults[2] || spinResults[0] === spinResults[2]) {
+        const winnings = betAmount * 3;
+        coins += winnings;
+        document.getElementById('slotResult').textContent = `You got a pair! +${winnings} coins.`;
+    } else {
+        document.getElementById('slotResult').textContent = "You lost!";
+    }
+
+    coinsDisplay.textContent = coins;
+    spinBtn.disabled = false;
+});
 </script>
 
+</div>
 </body>
 </html>
