@@ -332,7 +332,7 @@ rouletteSpinBtn.addEventListener('click', () => {
             if (resultColor === selectedColor) { winnings = Math.ceil(betAmount * 1.5); coins += winnings; resultText += `You won! +${winnings} coins.`; }
             else resultText += "You lost!";
         } else if (numberMode && !isNaN(betNumber)) {
-            if (resultNumber === 0 && betNumber === 0) { winnings = betAmount * 100; }
+            if (resultNumber === 0 && betNumber === 0) { winnings = betAmount * 500; }
             else if (resultNumber === betNumber) { winnings = betAmount * 30; }
             coins += winnings;
             resultText += (resultNumber === betNumber) ? `You won! +${winnings} coins.` : "You lost!";
