@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>levi poker</title>
+
+<style>
+body {
+  margin: 0;
+  background: radial-gradient(circle, #0b6623, #022b12);
+  font-family: Arial, sans-serif;
+  color: white;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table {
+  width: 1100px;
+  background: rgba(0,0,0,0.55);
+  padding: 20px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 40px black;
+}
+
+.cards {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.card {
+  width: 70px;
+  height: 100px;
+  background: white;
+  color: black;
+  border-radius: 10px;
+  margin: 5px;
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hidden {
+  background: #333;
+  color: transparent;
+}
+
+button, input {
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: none;
+  margin: 4px;
+}
+
+button {
+  cursor: pointer;
+  background: #28a745;
+  color: white;
+}
+
+button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) { background: #23963b; }
+
+#status {
+  margin-top: 10px;
+  min-height: 30px;
+}
+
+.controls {
+  margin-top: 10px;
+}
+
+.players {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  gap: 12px;
+}
+
+.playerBox {
+  background: rgba(0,0,0,0.6);
+  padding: 10px;
+  border-radius: 10px;
+  min-width: 120px;
+}
+
+.active {
+  outline: 3px solid gold;
+}
+.digga{
+text-decoration:none;
+color:crimson;
+font-size:30px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="table">
+
+  <h2>🃏 levi poker 🃏</h2>
+<a href="levi_gamble.html" class="digga">to the gambling</a>
+  <div>
+    Players:
+    <input type="number" id="playerCount" min="2" max="6" value="2">
+    <button id="dealBtn" onclick="startGame()">Deal</button>
+    <button id="nextHandBtn" onclick="nextHand()" disabled>Next Hand</button>
+  </div>
+
+  <div class="players" id="playersDisplay"></div>
+
+  <h3 id="turnTitle"></h3>
+
+  <div>Pot: <span id="pot">0</span></div>
+  <div>Current Bet: <span id="currentBet">0</span></div>
+
+  <h4>Community Cards</h4>
+  <div class="cards" id="community"></div>
+
+  <h4>Player Cards</h4>
+  <div class="cards" id="playerCards"></div>
+
+  <div class="controls">
+    Bet / Raise:
+    <input type="number" id="betAmount" value="10" min="1" style="width:80px">
+    <br>
+    <button onclick="check()">Check</button>
+    <button onclick="bet()">Bet</button>
+    <button onclick="call()">Call</button>
+    <button onclick="raise()">Raise</button>
+    <button onclick="fold()">Fold</button>
+  </div>
+
+  <div id="status"></div>
+
+</div>
+
+<script>
+const suits = ['♠','♥','♦','♣'];
+const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+
+let deck = [];
+let players = [];
+let community = [];
+
+let currentPlayer = 0;
+let stage = 0;
+let pot = 0;
+let currentBet = 0;
+let actionsThisRound = 0;
+let gameStarted = false;
+
+const START_MONEY = 1000;
+const ANTE = 10; // Mandatory ante per player
+
+function createDeck() {
+  deck = [];
+  for (let s of suits)
+    for (let v of values)
+      deck.push({value:v, suit:s});
+  deck.sort(() => Math.random() - 0.5);
+}
+
+function cardHTML(card) {
+  return `<div class="card">${card.value + card.suit}</div>`;
+}
+
+function startGame() {
+  if (gameStarted) return;
+
+  const count = parseInt(document.getElementById('playerCount').value);
+  if (count < 2 || count > 6) return;
+
+  gameStarted = true;
+  document.getElementById('dealBtn').disabled = true;
+  document.getElementById('nextHandBtn').disabled = true;
+  document.getElementById('playerCount').disabled = true;
+
+  createDeck();
+  players = [];
+  community = [];
+  pot = 0;
+  currentBet = 0;
+  stage = 0;
+  currentPlayer = 0;
+  actionsThisRound = 0;
+
+  for (let i = 0; i < count; i++) {
+    players.push({
+      hand: [deck.pop(), deck.pop()],
+      folded: false,
+      bet: 0,
+      money: START_MONEY
+    });
+  }
+
+  // Apply ante
+  players.forEach(p => {
+    const contribution = Math.min(ANTE, p.money);
+    p.money -= contribution;
+    pot += contribution;
+  });
+
+  render();
+  setStatus(`Each player pays ${ANTE} coins as ante. Player 1 starts`);
+}
+
+function render() {
+  document.getElementById('turnTitle').textContent =
+    stage < 4 ? `Player ${currentPlayer + 1}'s Turn` : "Showdown";
+
+  document.getElementById('community').innerHTML =
+    community.map(c => cardHTML(c)).join('');
+
+  document.getElementById('playerCards').innerHTML =
+    players[currentPlayer].hand.map(c => cardHTML(c)).join('');
+
+  document.getElementById('pot').textContent = pot;
+  document.getElementById('currentBet').textContent = currentBet;
+
+  const pd = document.getElementById('playersDisplay');
+  pd.innerHTML = '';
+  players.forEach((p,i)=>{
+    const div = document.createElement('div');
+    div.className = 'playerBox' + (i===currentPlayer?' active':'');
+    div.innerHTML = `
+      <strong>Player ${i+1}</strong><br>
+      💰 ${p.money}<br>
+      ${p.folded ? '❌ Folded' : ''}
+    `;
+    pd.appendChild(div);
+  });
+
+  // Disable buttons if player has no money (except Fold)
+  const player = players[currentPlayer];
+  document.querySelectorAll('.controls button').forEach(btn=>{
+    if(player.money <= 0 && btn.textContent !== 'Fold') btn.disabled = true;
+    else btn.disabled = false;
+  });
+}
+
+function nextPlayer() {
+  if(activePlayers() <= 1) return showdown();
+
+  do {
+    currentPlayer = (currentPlayer + 1) % players.length;
+  } while (players[currentPlayer].folded || players[currentPlayer].money <= 0);
+
+  actionsThisRound++;
+  if (actionsThisRound >= activePlayers()) nextStage();
+  render();
+}
+
+function activePlayers() {
+  return players.filter(p => !p.folded && p.money > 0).length;
+}
+
+function nextStage() {
+  actionsThisRound = 0;
+  players.forEach(p => p.bet = 0);
+  currentBet = 0;
+  stage++;
+
+  if (stage === 1) community.push(deck.pop(), deck.pop(), deck.pop());
+  if (stage === 2) community.push(deck.pop());
+  if (stage === 3) community.push(deck.pop());
+  if (stage === 4) showdown();
+}
+
+function check() {
+  if (currentBet > 0) return alert("You must call, raise, or fold");
+  if (players[currentPlayer].money <= 0) return alert("No money to check");
+  setStatus(`Player ${currentPlayer + 1} checks`);
+  nextPlayer();
+}
+
+function bet() {
+  if (currentBet > 0) return alert("Bet already placed");
+  const amount = parseInt(document.getElementById('betAmount').value);
+  if(amount <= 0) return alert("Bet must be greater than 0");
+  if (players[currentPlayer].money < amount) return alert("Not enough money");
+
+  currentBet = amount;
+  players[currentPlayer].bet += amount;
+  players[currentPlayer].money -= amount;
+  pot += amount;
+
+  setStatus(`Player ${currentPlayer + 1} bets ${amount}`);
+  nextPlayer();
+}
+
+function call() {
+  const toCall = currentBet - players[currentPlayer].bet;
+  if (toCall <= 0) return;
+  if (players[currentPlayer].money < toCall) return alert("Not enough money to call");
+
+  players[currentPlayer].bet += toCall;
+  players[currentPlayer].money -= toCall;
+  pot += toCall;
+
+  setStatus(`Player ${currentPlayer + 1} calls`);
+  nextPlayer();
+}
+
+function raise() {
+  const raiseAmt = parseInt(document.getElementById('betAmount').value);
+  if(raiseAmt <= 0) return alert("Raise must be greater than 0");
+
+  const newBet = currentBet + raiseAmt;
+  const needed = newBet - players[currentPlayer].bet;
+
+  if (players[currentPlayer].money < needed) return alert("Not enough money to raise");
+
+  currentBet = newBet;
+  players[currentPlayer].bet += needed;
+  players[currentPlayer].money -= needed;
+  pot += needed;
+
+  actionsThisRound = 0;
+  setStatus(`Player ${currentPlayer + 1} raises to ${currentBet}`);
+  nextPlayer();
+}
+
+function fold() {
+  players[currentPlayer].folded = true;
+  setStatus(`Player ${currentPlayer + 1} folds`);
+
+  if (activePlayers() <= 1) showdown();
+  else nextPlayer();
+}
+
+function showdown() {
+  let best = -1;
+  let winner = 0;
+
+  players.forEach((p,i)=>{
+    if (!p.folded && p.money >= 0) {
+      const score = handStrength(p.hand.concat(community));
+      if (score > best) {
+        best = score;
+        winner = i;
+      }
+    }
+  });
+
+  players[winner].money += pot;
+  setStatus(`🏆 Player ${winner + 1} wins ${pot}!`);
+  pot = 0;
+
+  render();
+
+  // Enable Next Hand or End Game
+  document.getElementById('nextHandBtn').disabled = false;
+  document.querySelectorAll('.controls button').forEach(btn => btn.disabled = true);
+
+  checkEndGame();
+}
+
+function nextHand() {
+  // Remove folded hands, reset stage
+  createDeck();
+  community = [];
+  currentBet = 0;
+  stage = 0;
+  actionsThisRound = 0;
+
+  // Only keep players with money
+  players.forEach(p => {
+    p.hand = [deck.pop(), deck.pop()];
+    p.folded = false;
+    p.bet = 0;
+  });
+
+  // Apply ante
+  players.forEach(p => {
+    if (p.money > 0) {
+      const contribution = Math.min(ANTE, p.money);
+      p.money -= contribution;
+      pot += contribution;
+    }
+  });
+
+  currentPlayer = 0;
+  render();
+  setStatus(`Next hand! Each player pays ${ANTE} coins as ante. Player 1 starts`);
+  document.getElementById('nextHandBtn').disabled = true;
+}
+
+function checkEndGame() {
+  const remaining = players.filter(p => p.money > 0);
+  if (remaining.length <= 1) {
+    setStatus(`🏆 Game Over! Player ${remaining[0]?remaining[0].money>0?players.indexOf(remaining[0])+1:"":"None"} wins the game!`);
+    document.querySelectorAll('.controls button').forEach(btn => btn.disabled = true);
+    document.getElementById('nextHandBtn').disabled = true;
+  }
+}
+
+function handStrength(cards) {
+  const counts = {};
+  cards.forEach(c => counts[c.value]=(counts[c.value]||0)+1);
+  const vals = Object.values(counts).sort((a,b)=>b-a);
+
+  const isFlush = cards.every(c=>c.suit===cards[0].suit);
+  const nums = cards.map(c=>values.indexOf(c.value)).sort((a,b)=>a-b);
+  const isStraight = nums.every((v,i)=>i===0||v===nums[i-1]+1);
+
+  if (isStraight && isFlush) return 8;
+  if (vals[0]===4) return 7;
+  if (vals[0]===3 && vals[1]===2) return 6;
+  if (isFlush) return 5;
+  if (isStraight) return 4;
+  if (vals[0]===3) return 3;
+  if (vals[0]===2 && vals[1]===2) return 2;
+  if (vals[0]===2) return 1;
+  return 0;
+}
+
+function setStatus(msg) {
+  document.getElementById('status').textContent = msg;
+}
+</script>
+
+</body>
+</html>
