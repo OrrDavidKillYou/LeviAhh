@@ -31,7 +31,8 @@
 
     <p> פרטים אישיים: מספר טלפון 0526040943 </p>
 
-         <form id="form1" method="post" dir="ltr" onsubmit="alert('Hello ' + document.getElementById('name').value); return false;">
+         <form id="form1" method="post" dir="ltr" onsubmit="return sayHello();">
+
             
             <label for="name">what is your name</label><input type="text" id="name" name="name" />
             <br />
@@ -80,6 +81,17 @@
             <input type="submit" value="send" />
             <input type="reset" value="reset" />
             </form>
+<script>
+function sayHello() {
+    const name = document.getElementById('name').value;
+    if (name) {
+        alert('Hello ' + name + '!');
+    } else {
+        alert('Please enter your name.');
+    }
+    return false; // prevents the form from submitting
+}
+</script>
 
 </body>
 </html>
