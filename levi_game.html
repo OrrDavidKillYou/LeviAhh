@@ -89,17 +89,21 @@
     .to-main a:hover {
       color: yellow;
     }
-    .nword {
-      text-decoration: none;
- background: transparent;
- color: #00ffff;
- margin: 10px;
- cursor: pointer;
- font-family: 'Orbitron';
- font-size: 1.1rem;
- transition: 0.3s;
- border-radius: 5px;
- min-width: 220px;
+      .nword {
+          text-decoration: none;
+          background: transparent;
+          color: #00ffff;
+          margin: 10px;
+          cursor: pointer;
+          font-family: 'Orbitron';
+          font-size: 1.1rem;
+          transition: 0.3s;
+          border-radius: 5px;
+          min-width: 220px;
+          align-content: center;
+          align-items:center;
+          text-align:center;
+      }
   </style>
 </head>
 <body>
@@ -126,123 +130,122 @@
   </div>
 
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const scoreDisplay = document.getElementById("score");
-    const timeDisplay = document.getElementById("time");
-    const message = document.getElementById("message");
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      const scoreDisplay = document.getElementById("score");
+      const timeDisplay = document.getElementById("time");
+      const message = document.getElementById("message");
 
-    const player = new Image();
-    player.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu5zSvKPUaZZGQzWcLE45xgBT3pxEYLlu2wQ&s";
+      const player = new Image();
+      player.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu5zSvKPUaZZGQzWcLE45xgBT3pxEYLlu2wQ&s";
 
-    let x, y;
-    const speed = 10;
-    const imgSize = 80;
+      let x, y;
+      const speed = 10;
+      const imgSize = 80;
 
-    const fruits = [
-      "https://i.imgur.com/4uwJAMo.jpeg",
-      "https://i.imgur.com/ZHJMphT.jpeg",
-      "https://i.imgur.com/pbYA8AB.jpeg",
-      "https://i.imgur.com/jEFcDfE.jpeg",
-      "https://i.imgur.com/5qMpg45.jpeg",
-      "https://i.imgur.com/jNDl6cg.jpeg",
-      "https://i.imgur.com/WC5rwH4.jpeg",
-      "https://i.imgur.com/t20Ak5b.jpeg",
-      "https://i.imgur.com/0cPP22V.png",
-      "https://i.imgur.com/Y0xO0n8.png"
-    ];
+      const fruits = [
+          "https://i.imgur.com/4uwJAMo.jpeg",
+          "https://i.imgur.com/ZHJMphT.jpeg",
+          "https://i.imgur.com/pbYA8AB.jpeg",
+          "https://i.imgur.com/jEFcDfE.jpeg",
+          "https://i.imgur.com/5qMpg45.jpeg",
+          "https://i.imgur.com/jNDl6cg.jpeg",
+          "https://i.imgur.com/WC5rwH4.jpeg",
+          "https://i.imgur.com/t20Ak5b.jpeg",
+          "https://i.imgur.com/0cPP22V.png",
+          "https://i.imgur.com/Y0xO0n8.png"
+      ];
 
-    let fruitImg = new Image();
-    let fruitX, fruitY;
-    const fruitSize = 60;
+      let fruitImg = new Image();
+      let fruitX, fruitY;
+      const fruitSize = 60;
 
-    let score, timeLeft, gameOver, timer;
+      let score, timeLeft, gameOver, timer;
 
-    function resetGame() {
-      x = 100;
-      y = 100;
-      score = 0;
-      timeLeft = 45;
-      gameOver = false;
+      function resetGame() {
+          x = 100;
+          y = 100;
+          score = 0;
+          timeLeft = 45;
+          gameOver = false;
 
-      scoreDisplay.textContent = score;
-      timeDisplay.textContent = timeLeft;
-      message.textContent = "";
-
-      newFruit();
-      draw();
-      startTimer();
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(fruitImg, fruitX, fruitY, fruitSize, fruitSize);
-      ctx.drawImage(player, x, y, imgSize, imgSize);
-    }
-
-    function newFruit() {
-      fruitImg.src = fruits[Math.floor(Math.random() * fruits.length)];
-      fruitX = Math.random() * (canvas.width - fruitSize);
-      fruitY = Math.random() * (canvas.height - fruitSize);
-    }
-
-    function checkCollision() {
-      if (
-        x < fruitX + fruitSize &&
-        x + imgSize > fruitX &&
-        y < fruitY + fruitSize &&
-        y + imgSize > fruitY
-      ) {
-        score++;
-        scoreDisplay.textContent = score;
-        newFruit();
-      }
-    }
-
-    function startTimer() {
-      clearInterval(timer);
-      timer = setInterval(() => {
-        if (timeLeft > 0) {
-          timeLeft--;
+          scoreDisplay.textContent = score;
           timeDisplay.textContent = timeLeft;
-        } else {
-          clearInterval(timer);
-          gameOver = true;
-          message.textContent = `Game Over! You scored ${score} points! 🎉 Press ENTER to play again.`;
-        }
-      }, 1000);
-    }
+          message.textContent = "";
 
-    document.addEventListener("keydown", function(event) {
-      if (event.key === "Enter" && (gameOver || timeLeft === undefined)) {
-        resetGame();
-        return;
+          newFruit();
+          draw();
+          startTimer();
       }
 
-      if (gameOver) return;
+      function draw() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(fruitImg, fruitX, fruitY, fruitSize, fruitSize);
+          ctx.drawImage(player, x, y, imgSize, imgSize);
+      }
 
-      if (event.key === "ArrowUp") y -= speed;
-      if (event.key === "ArrowDown") y += speed;
-      if (event.key === "ArrowLeft") x -= speed;
-      if (event.key === "ArrowRight") x += speed;
+      function newFruit() {
+          fruitImg.src = fruits[Math.floor(Math.random() * fruits.length)];
+          fruitX = Math.random() * (canvas.width - fruitSize);
+          fruitY = Math.random() * (canvas.height - fruitSize);
+      }
 
-      if (x < 0) x = 0;
-      if (y < 0) y = 0;
-      if (x + imgSize > canvas.width) x = canvas.width - imgSize;
-      if (y + imgSize > canvas.height) y = canvas.height - imgSize;
+      function checkCollision() {
+          if (
+              x < fruitX + fruitSize &&
+              x + imgSize > fruitX &&
+              y < fruitY + fruitSize &&
+              y + imgSize > fruitY
+          ) {
+              score++;
+              scoreDisplay.textContent = score;
+              newFruit();
+          }
+      }
 
-      checkCollision();
-      draw();
-    });
+      function startTimer() {
+          clearInterval(timer);
+          timer = setInterval(() => {
+              if (timeLeft > 0) {
+                  timeLeft--;
+                  timeDisplay.textContent = timeLeft;
+              } else {
+                  clearInterval(timer);
+                  gameOver = true;
+                  message.textContent = `Game Over! You scored ${score} points! 🎉 Press ENTER to play again.`;
+              }
+          }, 1000);
+      }
 
-    player.onload = function() {
-      message.textContent = "Press ENTER to start";
-    };
+      document.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" && (gameOver || timeLeft === undefined)) {
+              resetGame();
+              return;
+          }
+
+          if (gameOver) return;
+
+          if (event.key === "ArrowUp") y -= speed;
+          if (event.key === "ArrowDown") y += speed;
+          if (event.key === "ArrowLeft") x -= speed;
+          if (event.key === "ArrowRight") x += speed;
+
+          if (x < 0) x = 0;
+          if (y < 0) y = 0;
+          if (x + imgSize > canvas.width) x = canvas.width - imgSize;
+          if (y + imgSize > canvas.height) y = canvas.height - imgSize;
+
+          checkCollision();
+          draw();
+      });
+
+      player.onload = function () {
+          message.textContent = "Press ENTER to start";
+      };
   </script>
   <a href="zelkind_dash.html" class="nword">to zelkind dash</a>
 </body>
 </html>
-
 
 
 
