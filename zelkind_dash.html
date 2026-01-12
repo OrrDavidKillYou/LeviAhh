@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zelkind Dash - Higher Spikes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Orbitron', sans-serif; color: white; }
+        canvas { display: block; margin: auto; background: #000; box-shadow: 0 0 50px rgba(0, 255, 255, 0.2); }
+        
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.85); transition: 0.5s; z-index: 10;
+        }
+
+        .menu-card { background: rgba(15, 15, 15, 0.95); padding: 40px; border: 2px solid #00ffff; border-radius: 20px; text-align: center; box-shadow: 0 0 30px #00ffff; }
+        h1 { font-size: 3.5rem; margin-bottom: 10px; text-shadow: 0 0 15px #00ffff; letter-spacing: 8px; color: #00ffff; }
+        
+        .btn {
+            background: transparent; border: 1px solid #00ffff; color: #00ffff;
+            padding: 12px 30px; margin: 10px; cursor: pointer; font-family: 'Orbitron';
+            font-size: 1.1rem; transition: 0.3s; border-radius: 5px; min-width: 220px;
+        }
+        .btn:hover { background: #00ffff; color: #000; box-shadow: 0 0 20px #00ffff; transform: scale(1.05); }
+
+        .customizer { margin: 25px 0; display: flex; gap: 15px; justify-content: center; align-items: center; }
+        .color-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid white; transition: 0.2s; }
+        .color-dot:hover { transform: scale(1.2); }
+        
+        .hidden { display: none !important; }
+        #progress-container {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 400px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; border: 1px solid rgba(0,255,255,0.3);
+        }
+        #progress-bar { width: 0%; height: 100%; background: #00ffff; box-shadow: 0 0 15px #00ffff; border-radius: 5px; }
+        
+        #gg-screen {
+            position: absolute; top: 70%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 100px; font-weight: bold; pointer-events: none; display: none;
+            animation: pulse 1s infinite alternate, rainbow 3s infinite linear;
+        }
+
+        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } to { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } }
+        @keyframes rainbow {
+            0% { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
+            33% { color: #00ff00; text-shadow: 0 0 20px #00ff00; }
+            66% { color: #0000ff; text-shadow: 0 0 20px #0000ff; }
+            100% { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="progress-container" class="hidden"><div id="progress-bar"></div></div>
+<div id="gg-screen">GG</div>
+
+<div id="ui-layer">
+    <div class="menu-card" id="main-menu">
+        <h1>ZELKIND DASH</h1>
+      <br/> <a href="levi_game.html">to zelkind dash</a>
+        <p style="color: #aaa;">Customize Glow Color:</p>
+        <div class="customizer">
+            <div class="color-dot" style="background: #00ffff" onclick="setColor('#00ffff')"></div>
+            <div class="color-dot" style="background: #ff00ff" onclick="setColor('#ff00ff')"></div>
+            <div class="color-dot" style="background: #00ff00" onclick="setColor('#00ff00')"></div>
+            <div class="color-dot" style="background: #ffff00" onclick="setColor('#ffff00')"></div>
+            <div class="color-dot" style="background: #ff4400" onclick="setColor('#ff4400')"></div>
+        </div>
+
+        <button class="btn" onclick="startLevel(1)">LEVEL 1 (CUBE)</button>
+        <button class="btn" onclick="startLevel(2)">LEVEL 2 (UFO)</button>
+        <button class="btn" onclick="startLevel(3)">LEVEL 3 (WAVE)</button>
+    </div>
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const ui = document.getElementById('ui-layer');
+const ggScreen = document.getElementById('gg-screen');
+const progCont = document.getElementById('progress-container');
+const progBar = document.getElementById('progress-bar');
+
+canvas.width = 1000;
+canvas.height = 500;
+
+// --- Assets ---
+const imgs = {
+    cube: new Image(),
+    ufo: new Image(),
+    wave: new Image()
+};
+imgs.cube.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSA6Zyv1TVStS2tTUfv71UiCLxFVdZbXjEunQ&s';
+imgs.ufo.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZgtQG0jxB1qsgh6_1u8q97KHYw_MCl12a7g&s';
+imgs.wave.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMuXHewtLxL68skb065bWpqEeZuevq_38KhA&s';
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(freq, type, duration, vol=0.1) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+
+// --- Game Logic ---
+let player = {
+    x: 150, y: 250, w: 40, h: 40, dy: 0, 
+    rot: 0, color: '#00ffff', mode: 'cube',
+    alive: true, gravity: 0.8, jump: -14, pressing: false,
+    trail: []
+};
+
+let gameActive = false;
+let obstacles = [];
+let particles = [];
+let decorations = [];
+let distance = 0;
+let levelWidth = 7000;
+let speed = 8;
+let currentLevel = 1;
+
+function setColor(c) { player.color = c; }
+
+function startLevel(l) {
+    currentLevel = l;
+    ui.classList.add('hidden');
+    ggScreen.style.display = 'none';
+    progCont.classList.remove('hidden');
+    
+    gameActive = true;
+    player.alive = true;
+    player.y = 250;
+    player.dy = 0;
+    player.rot = 0;
+    player.trail = [];
+    distance = 0;
+    obstacles = [];
+    particles = [];
+    decorations = [];
+
+    if(l === 1) { player.mode = 'cube'; speed = 8; player.gravity = 0.8; player.jump = -14; }
+    if(l === 2) { player.mode = 'ufo'; speed = 7; player.gravity = 0.55; }
+    if(l === 3) { player.mode = 'wave'; speed = 9; }
+
+    generateLevel(l);
+    requestAnimationFrame(loop);
+}
+
+function generateLevel(l) {
+    for(let i=0; i<20; i++) decorations.push({x: i * 500, y: 50 + Math.random()*150, type: 'arrow'});
+
+    for(let i = 0; i < 30; i++) {
+        let x = 1000 + (i * 450);
+        if(l === 1) {
+            // INCREASED SPIKE HEIGHT: 85px (was 45)
+            // Y is 400 - height to touch floor
+            let spikeH = 85;
+            obstacles.push({x, type: Math.random() > 0.5 ? 'spike' : 'block', w: 50, h: spikeH, y: 400 - spikeH});
+        } else if(l === 2) {
+            let gap = 170;
+            let holeY = 80 + Math.random() * 150;
+            obstacles.push({x, type: 'block', y: 0, w: 60, h: holeY}); 
+            obstacles.push({x, type: 'block', y: holeY + gap, w: 60, h: 500}); 
+        } else if(l === 3) {
+            let y = 100 + Math.random() * 250;
+            obstacles.push({x, type: 'saw', y: y, r: 25});
+            obstacles.push({x: x + 150, type: 'spike_ceil', y: 0, w: 80, h: 100});
+            obstacles.push({x: x + 150, type: 'spike', y: 400 - 100, w: 80, h: 100});
+        }
+    }
+}
+
+function die() {
+    if(!player.alive) return;
+    player.alive = false;
+    playSound(100, 'sawtooth', 0.3);
+    for(let i=0; i<15; i++) {
+        particles.push({
+            x: player.x+20, y: player.y+20, 
+            vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12,
+            life: 1.0, color: player.color
+        });
+    }
+    setTimeout(() => { if(!gameActive) return; gameActive = false; ui.classList.remove('hidden'); }, 1500);
+}
+
+const inputOn = () => { 
+    player.pressing = true;
+    if(!player.alive || !gameActive) return;
+    if(player.mode === 'cube' && player.y >= 355) { player.dy = player.jump; playSound(300, 'square', 0.1); }
+    else if(player.mode === 'ufo') { player.dy = player.jump * 0.75; playSound(500, 'sine', 0.1); }
+};
+const inputOff = () => { player.pressing = false; };
+
+window.addEventListener('keydown', e => { if(e.code === 'Space' || e.code === 'ArrowUp') inputOn(); });
+window.addEventListener('keyup', e => { if(e.code === 'Space' || e.code === 'ArrowUp') inputOff(); });
+window.addEventListener('mousedown', inputOn);
+window.addEventListener('mouseup', inputOff);
+
+function drawPlayer() {
+    if(player.mode === 'wave' && player.alive) {
+        player.trail.push({x: player.x + 20, y: player.y + 20});
+        if(player.trail.length > 40) player.trail.shift();
+        ctx.beginPath();
+        ctx.strokeStyle = player.color;
+        ctx.lineWidth = 4;
+        ctx.shadowBlur = 10; ctx.shadowColor = player.color;
+        for(let i=0; i<player.trail.length; i++) {
+            let p = player.trail[i];
+            p.x -= speed; 
+            if(i===0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+
+    ctx.save();
+    ctx.translate(player.x + 20, player.y + 20);
+    ctx.rotate(player.rot);
+    
+    ctx.shadowBlur = 15; ctx.shadowColor = player.color;
+    ctx.strokeStyle = player.color;
+    ctx.lineWidth = 3;
+
+    let img = imgs.cube;
+    ctx.beginPath();
+    if(player.mode === 'cube') {
+        ctx.rect(-20, -20, 40, 40);
+    } else if(player.mode === 'ufo') {
+        img = imgs.ufo;
+        ctx.arc(0, 0, 22, 0, Math.PI*2);
+    } else if(player.mode === 'wave') {
+        img = imgs.wave;
+        ctx.moveTo(20, 0); ctx.lineTo(-20, -18); ctx.lineTo(-20, 18); ctx.closePath();
+    }
+    ctx.stroke();
+    ctx.clip();
+    ctx.drawImage(img, -22, -22, 44, 44);
+    ctx.restore();
+}
+
+function loop() {
+    if(!gameActive) return;
+    ctx.fillStyle = '#000'; ctx.fillRect(0,0, canvas.width, canvas.height);
+
+    // Decor Arrows
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    decorations.forEach(d => {
+        d.x -= speed * 0.4;
+        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x+20, d.y+10); ctx.lineTo(d.x, d.y+20); ctx.fill();
+        if(d.x < -50) d.x = canvas.width + 50;
+    });
+
+    // Floor & Ceiling
+    ctx.strokeStyle = player.color; ctx.lineWidth = 3;
+    ctx.strokeRect(-5, 400, canvas.width+10, 105);
+    ctx.strokeRect(-5, -5, canvas.width+10, 10);
+
+    if(player.alive) {
+        if(player.mode === 'wave') {
+            player.dy = player.pressing ? -speed * 0.8 : speed * 0.8;
+            player.rot = Math.atan2(player.dy, speed);
+        } else {
+            player.dy += player.gravity;
+        }
+        
+        player.y += player.dy;
+        if(player.y > 360) { player.y = 360; player.dy = 0; player.rot = 0; }
+        if(player.y < 5) { player.y = 5; player.dy = 0; }
+        if(player.mode === 'cube' && player.y < 360) player.rot += 0.2;
+
+        drawPlayer();
+        distance += speed;
+        progBar.style.width = Math.min(100, (distance / levelWidth * 100)) + "%";
+        
+        if(distance > levelWidth) {
+            player.alive = false;
+            ggScreen.style.display = 'block';
+            setTimeout(() => { gameActive = false; ui.classList.remove('hidden'); }, 3000);
+        }
+    }
+
+    particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+        ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
+        ctx.fillRect(p.x, p.y, 5, 5);
+        if(p.life <= 0) particles.splice(i, 1);
+    });
+    ctx.globalAlpha = 1;
+
+    // Obstacles
+    obstacles.forEach((obs) => {
+        obs.x -= speed;
+        ctx.shadowBlur = 10; ctx.shadowColor = "#ff0000"; ctx.fillStyle = "#ff3333";
+        
+        if(obs.type === 'spike') {
+            ctx.beginPath(); 
+            ctx.moveTo(obs.x, obs.y + obs.h); 
+            ctx.lineTo(obs.x + (obs.w / 2), obs.y); 
+            ctx.lineTo(obs.x + obs.w, obs.y + obs.h); 
+            ctx.fill();
+        } else if(obs.type === 'block') {
+            ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+        } else if(obs.type === 'saw') {
+            ctx.save(); ctx.translate(obs.x, obs.y); ctx.rotate(Date.now()*0.008);
+            for(let j=0; j<8; j++) { ctx.rotate(Math.PI/4); ctx.fillRect(0, -obs.r, 4, obs.r*2); }
+            ctx.restore();
+        } else if(obs.type === 'spike_ceil') {
+            ctx.beginPath(); ctx.moveTo(obs.x, 0); ctx.lineTo(obs.x + obs.w/2, obs.h); ctx.lineTo(obs.x + obs.w, 0); ctx.fill();
+        }
+
+        // Collision logic
+        let px = player.x + 5, py = player.y + 5, pw = 30, ph = 30; 
+        if(player.mode === 'wave') { px = player.x + 15; py = player.y + 15; pw = 10; ph = 10; }
+
+        if(player.alive && px < obs.x + obs.w && px + pw > obs.x && py < obs.y + obs.h && py + ph > obs.y) {
+            die();
+        }
+    });
+
+    requestAnimationFrame(loop);
+}
+</script>
+  
+</body>
+</html>
