@@ -116,11 +116,14 @@
     width: auto;
     z-index: 10;
   }
-.digga{
-text-decoration:none;
-color:lightseagreen;
-font-size:20px;
-}
+  .digga{
+    text-decoration:none;
+    color:lightseagreen;
+    font-size:20px;
+  }
+  /* Auto button style */
+  .auto-btn { background: #666; width: 100px; font-size: 12px; }
+  .auto-on { background: #d9534f; }
 </style>
 </head>
 <body>
@@ -134,7 +137,6 @@ font-size:20px;
 
 <div class="game-container">
 
-  <!-- HORSE RACING -->
   <div class="game-section">
     <div>Bet amount: <input type="number" id="horseBetAmount" min="1" value="1" style="width:60px"></div>
     <div>Choose horse:
@@ -146,6 +148,7 @@ font-size:20px;
       </select>
     </div>
     <button id="raceBtn">Start Race</button>
+    <button id="horseAutoBtn" class="auto-btn">Auto: OFF</button>
     <div class="horse-track" id="horseTrack">
       <div style="position:absolute; right:0; top:0; width:5px; height:120px; background:red;"></div>
       <div class="horse" id="horse1" style="top:5px;"><img src="https://i.imgur.com/2lGPLGo.png" width="30" height="30"><div style="font-size:10px; text-align:center; color:white;">Lessi</div></div>
@@ -156,12 +159,10 @@ font-size:20px;
     <div id="raceResult"></div>
   </div>
 
-  <!-- EMPTY SPACE -->
   <div class="game-section">
     <div style="height: 250px; width: 180px;"></div>
   </div>
 
-  <!-- ROULETTE -->
   <div class="game-section">
     <div>
       Bet amount: <input type="number" id="rouletteBetAmount" min="1" value="1" style="width:60px">
@@ -189,10 +190,10 @@ font-size:20px;
     </div>
 
     <button id="rouletteSpinBtn">Spin</button>
+    <button id="rouletteAutoBtn" class="auto-btn">Auto: OFF</button>
     <div id="rouletteResult"></div>
   </div>
 
-  <!-- SLOT MACHINE -->
   <div class="game-section">
     <div>Bet amount: <input type="number" id="slotBetAmount" min="1" value="1" style="width:60px"></div>
 
@@ -203,6 +204,7 @@ font-size:20px;
     </div>
 
     <button id="slotSpinBtn">Spin</button>
+    <button id="slotAutoBtn" class="auto-btn">Auto: OFF</button>
     <div id="slotResult"></div>
   </div>
 
@@ -215,6 +217,11 @@ font-size:20px;
 let coins = 20;
 const coinsDisplay = document.getElementById('coins');
 
+// AUTO STATE
+let horseAuto = false;
+let rouletteAuto = false;
+let slotAuto = false;
+
 /////////////////////
 // HORSE RACING
 const horses = [
@@ -226,10 +233,23 @@ const horses = [
 const raceBtn = document.getElementById('raceBtn');
 const raceResult = document.getElementById('raceResult');
 
+document.getElementById('horseAutoBtn').addEventListener('click', function() {
+  horseAuto = !horseAuto;
+  this.textContent = horseAuto ? "Auto: ON" : "Auto: OFF";
+  this.classList.toggle('auto-on', horseAuto);
+  if(horseAuto && !raceBtn.disabled) raceBtn.click();
+});
+
 raceBtn.addEventListener('click',()=> {
   const betAmount = parseInt(document.getElementById('horseBetAmount').value);
   const chosenHorse = parseInt(document.getElementById('horseSelect').value)-1;
-  if(isNaN(betAmount)||betAmount<1||betAmount>coins){alert("Invalid bet!");return;}
+  if(isNaN(betAmount)||betAmount<1||betAmount>coins){
+    alert("Invalid bet!");
+    horseAuto = false;
+    document.getElementById('horseAutoBtn').textContent = "Auto: OFF";
+    document.getElementById('horseAutoBtn').classList.remove('auto-on');
+    return;
+  }
   coins -= betAmount;
   coinsDisplay.textContent=coins;
   raceBtn.disabled=true;
@@ -254,6 +274,7 @@ raceBtn.addEventListener('click',()=> {
       raceResult.textContent=resultText;
       coinsDisplay.textContent=coins;
       raceBtn.disabled=false;
+      if(horseAuto) setTimeout(() => raceBtn.click(), 1000);
     }
   },100);
 });
@@ -277,6 +298,13 @@ const redBtn = document.getElementById('redBtn');
 const blackBtn = document.getElementById('blackBtn');
 const numberBtn = document.getElementById('numberBtn');
 const rouletteSpinBtn = document.getElementById('rouletteSpinBtn');
+
+document.getElementById('rouletteAutoBtn').addEventListener('click', function() {
+  rouletteAuto = !rouletteAuto;
+  this.textContent = rouletteAuto ? "Auto: ON" : "Auto: OFF";
+  this.classList.toggle('auto-on', rouletteAuto);
+  if(rouletteAuto && !rouletteSpinBtn.disabled) rouletteSpinBtn.click();
+});
 
 function updateButtonHighlights() {
     redBtn.classList.toggle('selected', selectedColor === 'red');
@@ -310,8 +338,14 @@ betNumberSelect.addEventListener('change', () => {
 rouletteSpinBtn.addEventListener('click', () => {
     const betAmount = parseInt(document.getElementById('rouletteBetAmount').value);
     const betNumber = parseInt(betNumberSelect.value);
-    if (betAmount > coins || betAmount < 1) { alert("Invalid bet!"); return; }
-    if (!selectedColor && (!numberMode || isNaN(betNumber))) { alert("Select a number or color!"); return; }
+    if (betAmount > coins || betAmount < 1) { 
+      alert("Invalid bet!"); 
+      rouletteAuto = false;
+      document.getElementById('rouletteAutoBtn').textContent = "Auto: OFF";
+      document.getElementById('rouletteAutoBtn').classList.remove('auto-on');
+      return; 
+    }
+    if (!selectedColor && (!numberMode || isNaN(betNumber))) { alert("Select a number or color!"); rouletteAuto = false; return; }
 
     coins -= betAmount;
     coinsDisplay.textContent = coins;
@@ -346,6 +380,7 @@ rouletteSpinBtn.addEventListener('click', () => {
         document.getElementById('rouletteResult').textContent = resultText;
         updateButtonHighlights();
         rouletteSpinBtn.disabled = false;
+        if(rouletteAuto) setTimeout(() => rouletteSpinBtn.click(), 1000);
     }, 5000);
 });
 
@@ -364,6 +399,13 @@ const symbols = [
     'https://i.imgur.com/pbYA8AB.jpeg',
     'https://i.imgur.com/jEFcDfE.jpeg'
 ];
+
+document.getElementById('slotAutoBtn').addEventListener('click', function() {
+  slotAuto = !slotAuto;
+  this.textContent = slotAuto ? "Auto: ON" : "Auto: OFF";
+  this.classList.toggle('auto-on', slotAuto);
+  if(slotAuto && !document.getElementById('slotSpinBtn').disabled) document.getElementById('slotSpinBtn').click();
+});
 
 function updateReels() {
     reels.forEach(reel => {
@@ -395,7 +437,13 @@ function spinReel(reel, spins, delay) {
 document.getElementById('slotSpinBtn').addEventListener('click', async () => {
     const betAmount = parseInt(document.getElementById('slotBetAmount').value);
     if (isNaN(betAmount) || betAmount < 1) { alert("Enter valid bet!"); return; }
-    if (coins < betAmount) { alert("Not enough coins!"); return; }
+    if (coins < betAmount) { 
+      alert("Not enough coins!"); 
+      slotAuto = false;
+      document.getElementById('slotAutoBtn').textContent = "Auto: OFF";
+      document.getElementById('slotAutoBtn').classList.remove('auto-on');
+      return; 
+    }
 
     coins -= betAmount;
     coinsDisplay.textContent = coins;
@@ -423,6 +471,7 @@ document.getElementById('slotSpinBtn').addEventListener('click', async () => {
 
     coinsDisplay.textContent = coins;
     spinBtn.disabled = false;
+    if(slotAuto) setTimeout(() => spinBtn.click(), 1000);
 });
 </script>
 <br/>
