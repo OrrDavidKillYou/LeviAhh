@@ -1,5 +1,66 @@
-<script>
+<head>
+  <title>playlist of lavi zalkond</title>
+</head>
+<body>
+<style>   button {
+            font-size: 20px;
+            padding: 5px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
 
+        /* Music button style */
+        .music-btn {
+            font-size: 20px;
+            padding: 8px 20px;
+            margin-top: 20px;
+            background-color: violet;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+</style>
+  
+  
+  <script>
+
+
+ function respond() {
+            let text = document.getElementById("userInput").value.trim().toLowerCase();
+
+            if (text.startsWith("hi i am ")) {
+                let name = text.substring(8).trim();
+                if (name.length > 0) {
+                    document.getElementById("response").innerText = "hi " + name.charAt(0).toUpperCase() + name.slice(1);
+                } else {
+                    document.getElementById("response").innerText = "Please enter your name after 'hi i am'.";
+                }
+            } else {
+                document.getElementById("response").innerText = "Please start your sentence with 'hi i am ...'";
+            }
+        }
+
+        function toggleMusic() {
+            const audio = document.getElementById("bg-music");
+            const btn = document.querySelector(".music-btn");
+            if (audio.paused) {
+                audio.volume = 0.3;
+                audio.play();
+                btn.innerText = "⏸ Pause Music";
+            } else {
+                audio.pause();
+                btn.innerText = "🎵 Play Music 🎵";
+            }
+        }
 
   
 </script>
+
+
+
+
+  
+</body>
+
+
