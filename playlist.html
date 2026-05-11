@@ -1,72 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>playlist of lavi zalkond</title>
+<meta charset="UTF-8">
+<title>LeviAhh Playlist</title>
+
+<style>
+    body{
+        background:#111;
+        color:white;
+        font-family:Arial;
+        padding:20px;
+    }
+
+    .song{
+        background:#1e1e1e;
+        margin:10px 0;
+        padding:10px;
+        border-radius:10px;
+    }
+
+    audio{
+        width:100%;
+        margin-top:8px;
+    }
+</style>
 </head>
 <body>
-<style>   button {
-            font-size: 20px;
-            padding: 5px 15px;
-            margin-left: 10px;
-            cursor: pointer;
-        }
 
-        /* Music button style */
-        .music-btn {
-            font-size: 20px;
-            padding: 8px 20px;
-            margin-top: 20px;
-            background-color: violet;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-</style>
-  
-  <audio id="bg-music" loop>
-        <source src="https://raw.githubusercontent.com/OrrDavidKillYou/LeviAhh/main/background-music.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-  <script>
+<h1>LeviAhh Playlist</h1>
 
+<div id="playlist"></div>
 
- function respond() {
-            let text = document.getElementById("userInput").value.trim().toLowerCase();
+<script>
+const OWNER = "OrrDavidKillYou";
+const REPO = "LeviAhh";
+const BRANCH = "main";
 
-            if (text.startsWith("hi i am ")) {
-                let name = text.substring(8).trim();
-                if (name.length > 0) {
-                    document.getElementById("response").innerText = "hi " + name.charAt(0).toUpperCase() + name.slice(1);
-                } else {
-                    document.getElementById("response").innerText = "Please enter your name after 'hi i am'.";
-                }
-            } else {
-                document.getElementById("response").innerText = "Please start your sentence with 'hi i am ...'";
+// words to ignore
+const ignored = [
+    "background",
+    "bgm",
+    "ambient",
+    "menu",
+    "loop"
+];
+
+const playlist = document.getElementById("playlist");
+
+async function getFiles(path = "") {
+
+    const url =
+`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    let audioFiles = [];
+
+    for (const item of data) {
+
+        if (item.type === "dir") {
+
+            const nested = await getFiles(item.path);
+            audioFiles.push(...nested);
+
+        } else {
+
+            const lower = item.name.toLowerCase();
+
+            const isAudio =
+                lower.endsWith(".mp3") ||
+                lower.endsWith(".wav") ||
+                lower.endsWith(".ogg") ||
+                lower.endsWith(".flac");
+
+            const ignoredFile =
+                ignored.some(word => lower.includes(word));
+
+            if (isAudio && !ignoredFile) {
+                audioFiles.push(item.download_url);
             }
         }
+    }
 
-        function toggleMusic() {
-            const audio = document.getElementById("bg-music");
-            const btn = document.querySelector(".music-btn");
-            if (audio.paused) {
-                audio.volume = 0.3;
-                audio.play();
-                btn.innerText = "⏸ Pause Music";
-            } else {
-                audio.pause();
-                btn.innerText = "🎵 Play Music 🎵";
-            }
-        }
+    return audioFiles;
+}
 
-  
+async function loadPlaylist() {
+
+    const songs = await getFiles();
+
+    songs.forEach(song => {
+
+        const div = document.createElement("div");
+        div.className = "song";
+
+        const title = document.createElement("div");
+        title.textContent =
+            decodeURIComponent(song.split("/").pop());
+
+        const audio = document.createElement("audio");
+        audio.controls = true;
+        audio.src = song;
+
+        div.appendChild(title);
+        div.appendChild(audio);
+
+        playlist.appendChild(div);
+    });
+}
+
+loadPlaylist();
 </script>
 
-
-<div style="margin-top:50px;"> 
-        <p id="response"></p>
-        <button class="music-btn" onclick="toggleMusic()">🎵 Play Music 🎵</button>
-    </div
-
-  
 </body>
-
-
+</html>
