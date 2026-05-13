@@ -75,8 +75,9 @@ body{
 .controls{
     display:flex;
     justify-content:center;
-    gap:20px;
+    gap:15px;
     margin-top:25px;
+    flex-wrap:wrap;
 }
 
 button{
@@ -102,6 +103,10 @@ button:hover{
 
 #playBtn:hover{
     background:#7d75ff;
+}
+
+#shuffleBtn.active{
+    background:#ff9800;
 }
 
 .playlist{
@@ -172,6 +177,7 @@ button:hover{
         <button id="prevBtn">⏮</button>
         <button id="playBtn">▶</button>
         <button id="nextBtn">⏭</button>
+        <button id="shuffleBtn">🔀</button>
     </div>
 
     <div class="playlist" id="playlist"></div>
@@ -198,6 +204,7 @@ const ignored = [
 let songs = [];
 let currentSong = 0;
 let isPlaying = false;
+let shuffleMode = false;
 
 const audio = new Audio();
 
@@ -215,6 +222,9 @@ const nextBtn =
 
 const prevBtn =
     document.getElementById("prevBtn");
+
+const shuffleBtn =
+    document.getElementById("shuffleBtn");
 
 const progress =
     document.getElementById("progress");
@@ -332,6 +342,46 @@ function pauseSong(){
     playBtn.textContent = "▶";
 }
 
+function nextSong(){
+
+    if(shuffleMode){
+
+        currentSong =
+            Math.floor(Math.random() * songs.length);
+
+    } else {
+
+        currentSong++;
+
+        if(currentSong >= songs.length){
+            currentSong = 0;
+        }
+    }
+
+    loadSong(currentSong);
+    playSong();
+}
+
+function prevSong(){
+
+    if(shuffleMode){
+
+        currentSong =
+            Math.floor(Math.random() * songs.length);
+
+    } else {
+
+        currentSong--;
+
+        if(currentSong < 0){
+            currentSong = songs.length - 1;
+        }
+    }
+
+    loadSong(currentSong);
+    playSong();
+}
+
 playBtn.onclick = () => {
 
     if(isPlaying){
@@ -342,39 +392,25 @@ playBtn.onclick = () => {
 };
 
 nextBtn.onclick = () => {
-
-    currentSong++;
-
-    if(currentSong >= songs.length){
-        currentSong = 0;
-    }
-
-    loadSong(currentSong);
-    playSong();
+    nextSong();
 };
 
 prevBtn.onclick = () => {
+    prevSong();
+};
 
-    currentSong--;
+shuffleBtn.onclick = () => {
 
-    if(currentSong < 0){
-        currentSong = songs.length - 1;
-    }
+    shuffleMode = !shuffleMode;
 
-    loadSong(currentSong);
-    playSong();
+    shuffleBtn.classList.toggle(
+        "active",
+        shuffleMode
+    );
 };
 
 audio.addEventListener("ended", () => {
-
-    currentSong++;
-
-    if(currentSong >= songs.length){
-        currentSong = 0;
-    }
-
-    loadSong(currentSong);
-    playSong();
+    nextSong();
 });
 
 audio.addEventListener("timeupdate", () => {
