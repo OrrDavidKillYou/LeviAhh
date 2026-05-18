@@ -49,6 +49,16 @@ body{
     text-align:center;
 }
 
+#albumArt{
+    width:220px;
+    height:220px;
+    object-fit:cover;
+    border-radius:18px;
+    margin-bottom:15px;
+    box-shadow:0 0 20px rgba(0,0,0,0.5);
+    transition:0.3s;
+}
+
 .song-name{
     font-size:20px;
     font-weight:bold;
@@ -163,6 +173,8 @@ button:hover{
 
     <div class="now-playing">
 
+        <img id="albumArt" src="album.jpg">
+
         <div class="song-name" id="songName">
             Loading songs...
         </div>
@@ -232,6 +244,9 @@ const progress =
 const progressContainer =
     document.getElementById("progressContainer");
 
+const albumArt =
+    document.getElementById("albumArt");
+
 function cleanSongName(name){
 
     return name
@@ -274,7 +289,8 @@ async function getFiles(path = "") {
                     lower.endsWith(".mp3") ||
                     lower.endsWith(".wav") ||
                     lower.endsWith(".ogg") ||
-                    lower.endsWith(".flac");
+                    lower.endsWith(".flac") ||
+                    lower.endsWith(".m4a");
 
                 const ignoredFile =
                     ignored.some(word =>
@@ -313,6 +329,25 @@ function loadSong(index){
     songName.textContent =
         cleanSongName(songs[index].name);
 
+    albumArt.src = "album.jpg";
+
+    if ('mediaSession' in navigator) {
+
+        navigator.mediaSession.metadata =
+            new MediaMetadata({
+                title: cleanSongName(songs[index].name),
+                artist: "LeviAhh Playlist",
+                album: "LeviAhh Music",
+                artwork: [
+                    {
+                        src: "album.jpg",
+                        sizes: "512x512",
+                        type: "image/jpeg"
+                    }
+                ]
+            });
+    }
+
     document
         .querySelectorAll(".song")
         .forEach((el,i)=>{
@@ -331,6 +366,9 @@ function playSong(){
     isPlaying = true;
 
     playBtn.textContent = "⏸";
+
+    albumArt.style.transform =
+        "scale(1.03) rotate(1deg)";
 }
 
 function pauseSong(){
@@ -340,6 +378,9 @@ function pauseSong(){
     isPlaying = false;
 
     playBtn.textContent = "▶";
+
+    albumArt.style.transform =
+        "scale(1)";
 }
 
 function nextSong(){
