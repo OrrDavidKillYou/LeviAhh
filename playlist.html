@@ -68,18 +68,19 @@ body{
 
 .progress-container{
     width:100%;
-    height:8px;
+    height:10px;
     background:#333;
     border-radius:999px;
     overflow:hidden;
     cursor:pointer;
+    position:relative;
 }
 
 .progress{
     width:0%;
     height:100%;
     background:#6c63ff;
-    transition:width 0.1s linear;
+    transition:width 0.05s linear;
 }
 
 .controls{
@@ -217,6 +218,7 @@ let songs = [];
 let currentSong = 0;
 let isPlaying = false;
 let shuffleMode = false;
+let isDragging = false;
 
 const audio = new Audio();
 
@@ -456,7 +458,7 @@ audio.addEventListener("ended", () => {
 
 audio.addEventListener("timeupdate", () => {
 
-    if(audio.duration){
+    if(audio.duration && !isDragging){
 
         const percent =
             (audio.currentTime / audio.duration) * 100;
@@ -466,24 +468,50 @@ audio.addEventListener("timeupdate", () => {
     }
 });
 
-progressContainer.addEventListener("click", (e) => {
+function setProgress(e){
 
     if(!audio.duration) return;
 
     const rect =
         progressContainer.getBoundingClientRect();
 
-    const clickX =
+    const x =
         e.clientX - rect.left;
 
     const width =
         rect.width;
 
-    const percent =
-        clickX / width;
+    let percent =
+        x / width;
+
+    if(percent < 0) percent = 0;
+    if(percent > 1) percent = 1;
 
     audio.currentTime =
         percent * audio.duration;
+
+    progress.style.width =
+        (percent * 100) + "%";
+}
+
+progressContainer.addEventListener("mousedown", (e) => {
+
+    isDragging = true;
+
+    setProgress(e);
+});
+
+document.addEventListener("mousemove", (e) => {
+
+    if(isDragging){
+
+        setProgress(e);
+    }
+});
+
+document.addEventListener("mouseup", () => {
+
+    isDragging = false;
 });
 
 async function init(){
